@@ -56,7 +56,7 @@ Use the jumper wires to attach from the LED display to the Vanguard board as fol
 	* Wait for a bit
 	* Connect your browser to http://192.168.4.1
 	* When the page appears click on Connect
-	* Type the password ```shrimping``` when challenged
+	* Type the password ```vgkits``` when challenged
 
 ## Connecting to the Vanguard via Serial
 
