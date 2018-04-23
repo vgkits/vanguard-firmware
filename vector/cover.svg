@@ -10,9 +10,9 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="157.81207mm"
-   height="67.633751mm"
-   viewBox="0 0 157.81207 67.633751"
+   width="83.000053mm"
+   height="130.42862mm"
+   viewBox="0 0 83.000052 130.42862"
    version="1.1"
    id="svg6744"
    inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
@@ -30,8 +30,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.7137315"
-     inkscape:cx="157.81385"
-     inkscape:cy="62.071074"
+     inkscape:cx="-43.775112"
+     inkscape:cy="301.68394"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -61,7 +61,8 @@
      inkscape:groupmode="layer"
      id="layer2"
      inkscape:label="horizontal"
-     style="display:none">
+     style="display:none"
+     transform="translate(-0.32636531,-0.60269596)">
     <image
        transform="translate(-25.453369,-24.932995)"
        y="23.694218"
@@ -167,9 +168,9 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-25.453369,-24.932995)">
+     transform="translate(-25.779734,-25.535691)">
     <rect
-       style="display:inline;fill:#ffffff;stroke:#f68712;stroke-width:1.581;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;fill-opacity:1"
+       style="display:inline;fill:#ffffff;fill-opacity:1;stroke:#f68712;stroke-width:1.58099997;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect41214-0"
        width="81.419052"
        height="128.84763"
@@ -218,7 +219,7 @@
          x="81.926865"
          y="130.38438"
          style="font-style:italic;font-weight:bold;font-size:1.99130857px;line-height:1.25;fill:#0fad00;fill-opacity:1;stroke-width:0.18591517"
-         id="tspan100325"></tspan><tspan
+         id="tspan100325" /><tspan
          sodipodi:role="line"
          x="81.926865"
          y="131.55525"
@@ -1998,6 +1999,6 @@
          id="tspan42509"
          x="145.66309"
          y="115.16862"
-         style="stroke-width:0.26458332"></tspan></text>
+         style="stroke-width:0.26458332" /></text>
   </g>
 </svg>
