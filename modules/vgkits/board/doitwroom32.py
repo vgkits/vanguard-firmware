@@ -1,0 +1,29 @@
+
+#Clockwise from USB
+D13 = 13
+D12 = 12
+D14 = 14
+D27 = 27
+D26 = 26
+D25 = 25
+D33 = 33
+D32 = 32
+D35 = 35
+D34 = 34
+VN = 39
+VP = 36
+
+#Anticlockwise from USB
+D15 = 15
+D2 = 2
+D4 = 4
+D5 = 5
+RX2 = 17
+TX2 = 18
+D18 = 18
+D19 = 19
+D21 = 21
+RX0 = 3
+TX0 = 1
+D22 = 22
+D23 = 23
