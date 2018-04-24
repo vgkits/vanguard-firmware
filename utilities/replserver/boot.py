@@ -11,7 +11,7 @@ gc.collect()
 
 import webrepl
 
-webrepl.start(password='shrimping')
+webrepl.start(password='vanguard')
 
 replpath = "webrepl-inlined.html.gz"
 

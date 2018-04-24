@@ -5,6 +5,7 @@ from flash.retrieve import run as flashRetrieve
 from flash.deploy import run as flashDeploy
 from imports.deploy import run as importsDeploy
 from replserver.deploy import run as replserverDeploy
+from wifi.deploy import run as wifiDeploy
 from main.deploy import run as mainDeploy
 
 def runFlash():
@@ -25,6 +26,9 @@ def runInstall():
 
     print("Deploying REPLServer")
     replserverDeploy()
+
+    print("Configuring Default Wifi Access Point")
+    wifiDeploy()
 
     print("Deploying App")
     mainDeploy()
