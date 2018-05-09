@@ -15,7 +15,10 @@
    version="1.1"
    id="svg39533"
    sodipodi:docname="nodemcu-m-8285.svg"
-   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)">
+   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
+   inkscape:export-filename="/home/cefn/Documents/shrimping/vgkits/git/vanguard/vector/nodemcu-m-8285.svg.png"
+   inkscape:export-xdpi="207.49001"
+   inkscape:export-ydpi="207.49001">
   <defs
      id="defs39527" />
   <sodipodi:namedview
@@ -26,7 +29,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.9962754"
-     inkscape:cx="127.67642"
+     inkscape:cx="52.28602"
      inkscape:cy="44.348429"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
@@ -36,7 +39,7 @@
      fit-margin-right="0"
      fit-margin-bottom="0"
      inkscape:window-width="1366"
-     inkscape:window-height="719"
+     inkscape:window-height="717"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1" />
@@ -48,7 +51,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
