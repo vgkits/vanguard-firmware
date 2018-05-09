@@ -147,17 +147,18 @@ def rsync(fromdir, todir):
         todir=todir
     )
 
-    # run ampy to lazy-create directory
-    from ampy import pyboard, cli
-    try:
-        emulateInvocation("ampy --port ${port} mkdir --exists-okay ${todir}", params)
+    # run ampy to lazy-create target directory if needed
+    if todir != '' and todir != '/':
+        from ampy import pyboard, cli
         try:
-            cli.cli()
-        except SystemExit:
-            pass
-    except pyboard.PyboardError:
-        print("Is cockle unplugged or in use by another program?")
-        return
+            emulateInvocation("ampy --port ${port} mkdir --exists-okay ${todir}", params)
+            try:
+                cli.cli()
+            except SystemExit:
+                pass
+        except pyboard.PyboardError:
+            print("Is cockle unplugged or in use by another program?")
+            return
 
     # run rshell to recursively 'rsync' the folder
     import rshell.main
