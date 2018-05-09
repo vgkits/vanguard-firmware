@@ -2,8 +2,7 @@ from neopixel import NeoPixel
 from machine import Pin
 from vgkits.color import *
 
-num_pixels = 0
-pixels = []
+pixels = None
 
 RGB = (0, 1, 2, 3)
 GRB = (1, 0, 2, 3)
@@ -14,15 +13,15 @@ WS2812 = WS2811
 
 
 def startPixels(pin=None, num=None, order=None):
-    global num_pixels, pixels
+    global pixels
     if pin is None:
         pin = Pin(14)
     if num is None:
         num = 8
-    if order is not None:
+    if order is None:
         NeoPixel.ORDER = WS2811
-    num_pixels = num
     pixels = NeoPixel(pin, num)
+    return pixels
 
 
 def setPixel(index, color, show=True):
@@ -37,7 +36,7 @@ def showPixels():
 
 def clearPixels(indexes=None, color=black, show=True):
     if indexes == None:
-        indexes = range(num_pixels)
+        indexes = range(pixels.n)
     for index in indexes:
         setPixel(index, color, False)
     if show:
