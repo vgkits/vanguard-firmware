@@ -3,15 +3,14 @@ import requests
 
 from config import retrievalConfig
 
-
 def get_firmware():
     retrievalLookup = retrievalConfig()
     # retrieve from url, write to local path
     remote_url = retrievalLookup["remote_image_url"]
     local_path = retrievalLookup["local_image_path"]
-    r = requests.get(remote_url, stream=True)
     if not (os.path.isfile(local_path)):
         print("Retrieving Micropython Image")
+        r = requests.get(remote_url, stream=True)
         with open(local_path, 'wb') as f:
             for chunk in r.iter_content(chunk_size=1024):
                 if chunk:
