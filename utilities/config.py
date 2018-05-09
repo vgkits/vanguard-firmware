@@ -67,5 +67,5 @@ def hardwareConfig(port=None):
         port = selectDevice()
     return dict(
         baud=baud,
-        port=port
+        port=port,
     )
