@@ -17,7 +17,7 @@
    id="svg6744"
    inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
    sodipodi:docname="cover.svg"
-   inkscape:export-filename="/home/cefn/Documents/shrimping/git/shrimpingit.sanic/style/img/project/vanguard/portfolio_700x300.png"
+   inkscape:export-filename="/home/cefn/Documents/shrimping/vgkits/git/vanguard/vector/cover.png"
    inkscape:export-xdpi="112.67"
    inkscape:export-ydpi="112.67">
   <defs
@@ -29,14 +29,14 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.7137315"
-     inkscape:cx="-43.775112"
-     inkscape:cy="301.68394"
+     inkscape:zoom="0.66004762"
+     inkscape:cx="-145.43072"
+     inkscape:cy="139.67762"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1366"
-     inkscape:window-height="719"
+     inkscape:window-height="717"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
@@ -53,7 +53,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -193,6 +193,20 @@
        inkscape:export-filename="/home/cefn/Documents/shrimping/git/shrimpingit.sanic/style/img/project/vanguard/cover.png"
        inkscape:export-xdpi="198.547"
        inkscape:export-ydpi="198.547" />
+    <ellipse
+       style="opacity:0.68800001;vector-effect:none;fill:#ff0000;fill-opacity:0.44252876;stroke:none;stroke-width:0.11626756;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path308-3-1"
+       cx="85.328583"
+       cy="101.61417"
+       rx="4.070312"
+       ry="2.7474601" />
+    <ellipse
+       style="opacity:0.68800001;vector-effect:none;fill:#ff0000;fill-opacity:0.44252876;stroke:none;stroke-width:0.11626756;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path308-3-1-06"
+       cx="50.081917"
+       cy="133.09467"
+       rx="4.070312"
+       ry="2.7474601" />
     <rect
        style="display:inline;fill:#ffffff;fill-opacity:1;stroke:#f68712;stroke-width:1.12409043;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect3894"
@@ -250,7 +264,7 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:9.98611355px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#c5007c;fill-opacity:1;stroke:none;stroke-width:0.2496528"
-       x="46.046383"
+       x="46.102081"
        y="40.391605"
        id="text844-9"
        inkscape:export-filename="/home/cefn/Documents/shrimping/git/shrimpingit.sanic/style/img/project/vanguard/cover.png"
@@ -258,7 +272,7 @@
        inkscape:export-ydpi="198.547"><tspan
          sodipodi:role="line"
          id="tspan842-0"
-         x="46.046383"
+         x="46.102081"
          y="40.391605"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Arial;-inkscape-font-specification:Arial;fill:#c5007c;fill-opacity:1;stroke-width:0.2496528"
          dx="0 0 0 6.9578834"> ANUARD</tspan></text>
@@ -2000,5 +2014,103 @@
          x="145.66309"
          y="115.16862"
          style="stroke-width:0.26458332" /></text>
+    <ellipse
+       style="opacity:0.68800001;vector-effect:none;fill:#ff7f2a;fill-opacity:0.44252876;stroke:none;stroke-width:0.11626756;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path308-3-1-6"
+       cx="55.613869"
+       cy="128.12619"
+       rx="4.070312"
+       ry="2.7474601" />
+    <ellipse
+       style="opacity:0.68800001;vector-effect:none;fill:#ff7f2a;fill-opacity:1;stroke:none;stroke-width:0.06363961;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path308"
+       cx="55.613869"
+       cy="128.12619"
+       rx="2.2279048"
+       ry="1.5038356" />
+    <ellipse
+       style="opacity:0.68800001;vector-effect:none;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.06363961;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path308-3"
+       cx="85.328583"
+       cy="101.61417"
+       rx="2.2279048"
+       ry="1.5038356" />
+    <ellipse
+       style="opacity:0.68800001;vector-effect:none;fill:#800080;fill-opacity:0.44252876;stroke:none;stroke-width:0.11626756;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path308-3-1-2"
+       cx="80.242409"
+       cy="106.0477"
+       rx="4.070312"
+       ry="2.7474601" />
+    <ellipse
+       style="opacity:0.68800001;vector-effect:none;fill:#800080;fill-opacity:1;stroke:none;stroke-width:0.06363961;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path308-6"
+       cx="80.242409"
+       cy="106.0477"
+       rx="2.2279048"
+       ry="1.5038356" />
+    <ellipse
+       style="opacity:0.68800001;vector-effect:none;fill:#ff00ff;fill-opacity:0.44252876;stroke:none;stroke-width:0.11626756;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path308-3-1-7"
+       cx="75.597511"
+       cy="110.03992"
+       rx="4.070312"
+       ry="2.7474601" />
+    <ellipse
+       style="opacity:0.68800001;vector-effect:none;fill:#ff00ff;fill-opacity:1;stroke:none;stroke-width:0.06363961;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path308-7"
+       cx="75.597511"
+       cy="110.03992"
+       rx="2.2279048"
+       ry="1.5038356" />
+    <ellipse
+       style="opacity:0.68800001;vector-effect:none;fill:#0000ff;fill-opacity:0.44252876;stroke:none;stroke-width:0.11626756;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path308-3-1-0"
+       cx="70.88958"
+       cy="114.41044"
+       rx="4.070312"
+       ry="2.7474601" />
+    <ellipse
+       style="opacity:0.68800001;vector-effect:none;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.06363961;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path308-5"
+       cx="70.88958"
+       cy="114.41044"
+       rx="2.2279048"
+       ry="1.5038356" />
+    <ellipse
+       style="opacity:0.68800001;vector-effect:none;fill:#00ff00;fill-opacity:0.44252876;stroke:none;stroke-width:0.11626756;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path308-3-1-9"
+       cx="65.803391"
+       cy="118.71789"
+       rx="4.070312"
+       ry="2.7474601" />
+    <ellipse
+       style="opacity:0.68800001;vector-effect:none;fill:#00ff00;fill-opacity:1;stroke:none;stroke-width:0.06363961;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path308-35"
+       cx="65.803391"
+       cy="118.71789"
+       rx="2.2279048"
+       ry="1.5038356" />
+    <ellipse
+       style="opacity:0.68800001;vector-effect:none;fill:#ffff00;fill-opacity:0.44252876;stroke:none;stroke-width:0.11626756;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path308-3-1-3"
+       cx="60.96751"
+       cy="123.33606"
+       rx="4.070312"
+       ry="2.7474601" />
+    <ellipse
+       style="opacity:0.68800001;vector-effect:none;fill:#ffff00;fill-opacity:1;stroke:none;stroke-width:0.06363961;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path308-62"
+       cx="60.96751"
+       cy="123.33606"
+       rx="2.2279048"
+       ry="1.5038356" />
+    <ellipse
+       style="opacity:0.68800001;vector-effect:none;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.06363961;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path308-9"
+       cx="50.081917"
+       cy="133.09467"
+       rx="2.2279048"
+       ry="1.5038356" />
   </g>
 </svg>
