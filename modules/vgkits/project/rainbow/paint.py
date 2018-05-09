@@ -2,38 +2,61 @@ from time import sleep
 from machine import Pin
 from vgkits.ws2811 import *
 
-num_pixels = 8
-startPixels(pin=Pin(14), num=8)
-allIndexes = range(num_pixels)
+pixels = startPixels(pin=Pin(14), num=8)
+numPixels = pixels.n
 clearPixels()
 
 # values controlling rainbow
 # hue of first pixel
 hueOffset = 0
 hueSeparation = 1.0 / 8.0
-darkFactor = 1 / 8.0
+defaultBrightness = 1.0 / 8.0
 hueChange = 0.02
 changeDelay = 0.02
 
+def darkenRgb(rgb, brightness=None):
+    if brightness is None:
+        brightness=defaultBrightness
+    return [int(value * brightness) for value in rgb]
 
-def darken(rgb, proportion=0.05):
-    return [int(value * proportion) for value in rgb]
+def fillSpectrum(count=None):
+    if count is None:
+        count = numPixels
+    return [wheel(((i * hueSeparation) + hueOffset) % 1) for i in range(count)]
 
 
-def paintWheel():
-    colors = [wheel(((i * hueSeparation) + hueOffset) % 1) for i in allIndexes]
-    for i in allIndexes:
-        setPixel(i, darken(colors[i], darkFactor), False)
+def darkSpectrum(count=None, brightness=None):
+    return [darkenRgb(color, brightness) for color in fillSpectrum(count)]
+
+
+def paintSpectrum(brightness=None):
+    colors = darkSpectrum(brightness=brightness)
+    for i in range(numPixels):
+        setPixel(i, colors[i], False)
     showPixels()
 
-
-def rotateWheel():
+def rotateSpectrum():
     global hueOffset
     while True:
-        paintWheel()
+        paintSpectrum()
         sleep(changeDelay)
         hueOffset = hueOffset + hueChange
 
 
+def glimpseSpectrum():
+    colors = darkSpectrum()
+    for offset in range(-numPixels, numPixels):
+        clearPixels(show=False)
+        for pixel in range(numPixels):
+            colorPos = pixel + offset
+            if colorPos // 8 == 0:  # ignore painting below pixel -1 or above pixel 8
+                setPixel(pixel, colors[colorPos], show=False)
+        showPixels()
+        sleep(changeDelay)
+    clearPixels()
+
+# support legacy name
+rainbow = paintSpectrum
+
 if __name__ == "__main__":
-    paintWheel()
+    glimpseSpectrum()
