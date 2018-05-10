@@ -28,16 +28,35 @@ If you want to wipe and reinstall your board with a newer build, (or are configu
 	* The 8-pixel Display
 	* The Jumper wires
 
-Look on the back of your LED display. It should have three pins going into it, and three pins going out. Find the end of the board with the following three connections.
+Look on the back of your LED display. It should have three pins going into it, and three pins going out. Find the end of the display with the following three connections.
 
-* Data In - labelled DIN
 * Power - labelled 5V or 4-7VDC
 * Ground - labelled GND
+* Data In - labelled DIN
 
-Use the jumper wires to attach from the LED display to the Vanguard board as follows
-* DIN --> GPIO14, (labelled '14')
-* 4-7VDC --> 5V
-* GND --> GND
+Use the jumper wires to attach from the **LED display** to the **Vanguard board** as follows
+* 5V Power --> 5V (use red side of power cable)
+* GND --> GND (use black side of power cable)
+* DIN --> 14, (labelled '14', use the yellow jumper wire)
+
+## (Optionally) Connecting the Battery pack
+
+The Vanguard board can run directly from USB power by attaching with the orange cable to a laptop, or using a mobile phone charger. However, for short demonstrations you can use the battery pack. The battery pack will drain quickly (within hours) if you leave it powered this way.
+
+* You will need...
+	* A 4xAAA battery pack with switch and crimped 2.54mm female sockets
+	* The Vanguard board
+
+Look at the label on the back of your Vanguard board. Find the following pins.
+
+* Voltage In - labelled VIN
+* Ground - labelled GND
+
+Look at the battery pack. Find the power wire (red) and ground wire (black).
+
+Attach from the Battery pack to the Vanguard board as follows
+* Power (red) --> VIN 
+* GND (black) --> GND
 
 ## Connecting to the Vanguard Shell via Wifi
 
@@ -63,18 +82,28 @@ Use the jumper wires to attach from the LED display to the Vanguard board as fol
 
 A more formal way to connect to the Shell uses a 'serial' or 'UART' connection over the USB wire.
 
-The Vanguard uses a CH340 UART module, (install the drivers [from here](http://vgkits.co.uk/drivers/ch340/)) and the default connection speed (baud rate) is 115200.
-
-For example on a linux machine you can connect like...
-
-* Type ```screen /dev/ttyUSB0 115200``` and press ```Return```
-* When the terminal goes blank, press ```Return``` a second time
-
-If the Vanguard has connected successfully, you should see three chevrons like this...
+The Vanguard uses a CH340 UART module, (install the drivers [from here](http://vgkits.co.uk/drivers/ch340/)) and the default connection speed (baud rate) is 115200. If the Vanguard has connected successfully, press CTRL+C to get control of the shell, and you should see three chevrons like this...
 
     >>>
 
 ...and you can continue to the next step ```Issuing Commands```
+
+### On all platforms
+
+We have provided a script in the [vanguard repository utilities folder](https://github.com/vgkits/vanguard/tree/master/utilities) called shell.py which makes it easy to connect to the console over a serial link using [miniterm.py from pyserial](https://github.com/pyserial/pyserial/blob/master/serial/tools/miniterm.py). See Appendix A for instructions to download and configure our repository. Once complete...
+
+* Use ```cd``` to change to the **utilities** folder
+* Type ```python3 shell.py``` and press ```Return```
+
+### On Linux
+
+On a linux machine you can connect using [Gnu Screen](https://www.gnu.org/software/screen/)...
+
+* Type ```screen /dev/ttyUSB0 115200``` and press ```Return```
+
+### On Windows or Mac
+
+Various terminal programs are available, such as Putty, GNU Screen, miniterm.py
 
 ###### Troubleshooting
 
@@ -148,12 +177,14 @@ sqrt(4*4)
 	- Our config scripts run in _python3_ **and** _python2_. However, _micropython_ is a dialect of _python3_. Our advice; learn one language version
 * Install **pip3** on your laptop
 * Install **pyserial**, **adafruit-ampy** **rshell**, and **esptool** using *pip3*. For example, linux and mac users would run commands in the console as follows...
+
 ```
 sudo pip3 install pyserial
 sudo pip3 install adafruit-ampy
 sudo pip3 install esptool
 sudo pip3 install rshell
 ```
+
 * Get our scripts from the vanguard repository ...
 	- ...download a [snapshot of our scripts](https://github.com/vgkits/vanguard/archive/master.zip)
 	OR
