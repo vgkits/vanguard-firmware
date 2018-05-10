@@ -9,7 +9,8 @@ In your packs you should have...
 * A Vanguard board (NodeMCU-M board pre-installed with Micropython, our libraries and startup scripts)
 * An 8-pixel WS2811 RGB LED display
 * A USB A-to-MicroB cable
-* A 3-way jumper cable with 2.54mm female sockets
+* A 2-way red and black power cable with 2.54mm female sockets
+* A single jumper wire with 2.54mm female sockets
 * A 4xAA battery pack with switch and 2.54mm female sockets
 
 ## Preparing your Components
@@ -19,7 +20,7 @@ Retail packs from @VGKits should have the following steps already completed...
 * WS2811 LED displays should have 2.54mm male pins soldered on both ends
 * 4xAA battery packs should have 2.54mm female sockets crimped on the red and black cables
 
-If you are configuring your own hardware or you want to wipe and reinstall your board with a newer build, follow the steps in _Appendix A_ below.
+If you want to wipe and reinstall your board with a newer build, (or are configuring another supplier's ESP8266/ESP8285 to be a [Vanguard board](https://vgkits.org/blog/projects/vanguard/)) follow the steps in _Appendix A_ below.
 
 ## Connecting the LED Display
 
@@ -172,7 +173,7 @@ If you are using a home machine, you will need to
 * Ensure the [CH340 USB to UART drivers](https://vgkits.co.uk/drivers/ch340/) are installed
 	* a restart of your machine is typically needed after this step
 * Ensure [Python3](https://www.python.org/downloads/) is installed
-	* Python version 3 is preferred, the same version as your badges will run, but Python 2 will do
+	* Python version 3 is preferred, the same version as your board will run, but Python 2 will do
 
 After completing these steps you should be able to plug in your NodeMCU-M, (see under ```Powering Up```), then run a terminal or cmd.exe and copy-paste the following...
 
