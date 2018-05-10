@@ -6,7 +6,7 @@ Get an updated version of this document at [http://vgkits.co.uk/project/rainbow/
 
 In your packs you should have...
 
-* A Vanguard board (NodeMCU-M board pre-installed with Micropython, our libraries and startup scripts)
+* A Vanguard board (NodeMCU-M flashed with vgkits' micropython startup scripts)
 * An 8-pixel WS2811 RGB LED display
 * A USB A-to-MicroB cable
 * A 3-way jumper cable with 2.54mm female sockets
@@ -50,7 +50,7 @@ Use the jumper wires to attach from the LED display to the Vanguard board as fol
 * Step 2: To connect to the newly available wifi access point
 	* Wifi networks have a name or ESSID. Normally your laptop takes a few minutes to refresh the list of available network ESSIDs in menus. Turning on and off your laptop's wifi can accelerate this.
 	* The Vanguard appears with an ESSID containing a unique number like Micropython-34fe57
-	* The default Wifi password is ```micropythoN``` with a capital N as the last letter
+	* The default Wifi password is ```vanguard```
 
 * Step 3: To load the console in the browser
 	* Wait for a bit
