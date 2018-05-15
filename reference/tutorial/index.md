@@ -11,6 +11,9 @@ In your packs you should have...
 * A USB A-to-MicroB cable
 * A 2-way red and black power cable with 2.54mm female sockets
 * A single jumper wire with 2.54mm female sockets
+
+To demonstrate projects without USB power, you can optionally use... 
+
 * A 4xAA battery pack with switch and 2.54mm female sockets
 
 ## Preparing your Components
@@ -34,10 +37,16 @@ Look on the back of your LED display. It should have three pins going into it, a
 * Ground - labelled GND
 * Data In - labelled DIN
 
+Look at the label on the back of your Vanguard board. Find the following pins.
+
+* GPIO pin 14 - labelled 14
+* 5 Volts power pin - labelled 5V
+* Ground - labelled GND
+
 Use the jumper wires to attach from the **LED display** to the **Vanguard board** as follows
 * 5V Power --> 5V (use red side of power cable)
 * GND --> GND (use black side of power cable)
-* DIN --> 14, (labelled '14', use the yellow jumper wire)
+* DIN --> 14 (use yellow jumper wire)
 
 ## (Optionally) Connecting the Battery pack
 
@@ -88,26 +97,26 @@ The Vanguard uses a CH340 UART module, (install the drivers [from here](http://v
 
 ...and you can continue to the next step ```Issuing Commands```
 
-### On all platforms
+##### On all platforms
 
 We have provided a script in the [vanguard repository utilities folder](https://github.com/vgkits/vanguard/tree/master/utilities) called shell.py which makes it easy to connect to the console over a serial link using [miniterm.py from pyserial](https://github.com/pyserial/pyserial/blob/master/serial/tools/miniterm.py). See Appendix A for instructions to download and configure our repository. Once complete...
 
 * Use ```cd``` to change to the **utilities** folder
 * Type ```python3 shell.py``` and press ```Return```
 
-### On Linux
+###### On Linux
 
 On a linux machine you can connect using [Gnu Screen](https://www.gnu.org/software/screen/)...
 
 * Type ```screen /dev/ttyUSB0 115200``` and press ```Return```
 
-### On Windows or Mac
+##### On Windows or Mac
 
 Various terminal programs are available, such as Putty, GNU Screen, miniterm.py
 
-###### Troubleshooting
+##### Troubleshooting serial connection
 
-* If the console has gone blank, but the chevrons don't appear try the following until they do
+* If the chevrons don't appear after connecting try the following until they do
 	* try pressing the ```CTRL+C``` keys together to try and kill any sequence of steps which was already running. This should return you to the chevrons.
 	* visit Appendix A: Configuring your Vanguard, to reset your Vanguard board to 'factory' configuration
 
@@ -126,39 +135,48 @@ Let's try it out to learn some fundamental programming concepts.
 
 ### Core Programming Concepts
 * Values
-    * Type ```4+4``` and press ```Return```. What happens? That was an arithmetic expression, which results in a number.
-    * Type ```4*4``` with an asterisk instead and press ```Return```. (hint ```x``` is treated as a letter in a computer language).
+    * Type ```4+4``` and press ```Enter``` to enter the instruction. What happens? That was an arithmetic expression, which results in a number.
+    * Type ```4*4``` with an asterisk instead and press ```Enter```. What will happen? (hint ```x``` is treated as a letter in a computer language).
     * Enter ```'Hello' + 'World'```
 * Names
-    * Enter ```square = 4*4```
-    * Enter ```square``` (we just assigned a value to a name, so we can refer to it later)
+    * Enter ```x = 4*4```
+    * Enter ```x``` (we just assigned a value to a name, so we can refer to it later)
     * Enter ```capital = 'Paris'```
     * Enter ```capital```
 * Steps
-    * Enter ```raw_input('What is the capital of Colombia? ')```
-    * Enter ```capital = raw_input('What is the capital of Colombia? ')```
+    * Enter ```input('What is the capital of Colombia? ')```
+    * Try using the up arrow key to retrieve the last command you ran, then edit it to read ```capital = input('What is the capital of Colombia? ')``` then press Enter
 * Groups of Values: Lists, Dictionaries
     * Enter ```sequence = [3,4,5,6,7,8]```
     * Enter ```sequence```
+    * Enter ```sequence[1]```
     * Enter ```sequence[0]```
     * Enter ```sequence[1:4]```
     * Enter ```[num*num for num in sequence]```
-* Groups of Steps: Blocks and Functions
-    * Enter ```range(2,6)```
-    * Enter ```def square(x):```
-    * Press Tab, then Enter ```return x*x```
-    * Delete all spaces/tabs then press ```Return```
-    * Enter ```square(4)```
 
-### Colors, Lists and Loops
+* Groups of Steps: Loop Blocks
+    * Enter ```list(range(2,6))``` to place *range(2,6)* inside the brackets of *list()*
+    * Enter ```for item in range(2,6):```
+    * Press Tab to indent the line, then type ```print(item*item)``` before pressing ```Enter```
+    * Use backspace to delete all spaces/tabs on the line then press ```Enter``` to complete the definition of a for loop and start it executing.
+
+
+* Groups of Steps: Function Blocks
+    * Enter ```def square(x):```
+    * Press Tab to indent the line, then type ```return x*x``` before Enter
+    * Use backspace to delete all spaces/tabs on the line then press ```Return``` to finish defining a new function called *square*.
+    * Enter ```square(4)```. This should invoke the function you defined.
+
+### Colors as Lists
 
 * Lists
-	* Enter ```yellow = [255,255,0]```
-	* Enter ```yellow``` and it should show your list
+	* Enter ```puce = [204, 136, 153]```
+	* Enter ```puce``` and it should show your list of numbers
 	* Enter ```red```  this should show a list which was previously defined
 	* Enter ```setPixel(0,red)```
 	* Enter ```setPixel(1,green)```
 	* Enter ```setPixel(2,blue)```
+	* Enter ```setPixel(3,puce)```
 
 ##### Libraries
 
