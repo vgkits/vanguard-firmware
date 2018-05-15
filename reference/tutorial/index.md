@@ -78,14 +78,14 @@ Attach from the Battery pack to the Vanguard board as follows
 
 * Step 2: To connect to the newly available wifi access point
 	* Wifi networks have a name or ESSID. Normally your laptop takes a few minutes to refresh the list of available network ESSIDs in menus. Turning on and off your laptop's wifi can accelerate this.
-	* The Vanguard appears with an ESSID containing a unique number like Micropython-34fe57
+	* The Vanguard appears with an ESSID containing a unique number like vanguard-34fe57
 	* The default Wifi password is ```vanguard```
 
 * Step 3: To load the console in the browser
 	* Wait for a bit
 	* Connect your browser to http://192.168.4.1
 	* When the page appears click on Connect
-	* Type the password ```vgkits``` when challenged
+	* Type the password ```vanguard``` when challenged
 
 ## Connecting to the Vanguard via Serial
 
