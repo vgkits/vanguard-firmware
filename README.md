@@ -12,4 +12,4 @@ python3 deployall.py
 
 ...to configure it as a Vanguard board. 
 
-If you have any issues, please report them on the Issues tab above. Once you have registered with a github account, you can also use this account to post our our website at https://vgkits.org
+If you have any issues, please report them on the Issues tab above. Once you have registered with a github account, you can also use this account to contribute code and issues to many other projects, as well as posting questions and comments our our website at https://vgkits.org
