@@ -1,87 +1,84 @@
-import sys
-
-try:
-    import usocket as socket
-except:
-    import socket
-
+import socket
 import os
-
 import gc
 
-gc.collect()
+hitcount = 0
 
-import webrepl
 
-try:
-    webrepl.start(password='vanguard')
+def createServer(handler=None):
+    addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
 
-    replpath = "vgkits/util/webrepl-inlined.html.gz"
+    serverSocket = socket.socket()
+    serverSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    serverSocket.bind(addr)
+    serverSocket.listen(1)
 
-    s = socket.socket()
-    ai = socket.getaddrinfo("0.0.0.0", 80)
-    addr = ai[0][-1]
+    if handler:
+        serverSocket.setsockopt(socket.SOL_SOCKET, 20, handler)
 
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    s.bind(addr)
-    s.listen(5)  # TODO investigate optimal backlog number
+    print('listening on', addr)
 
-    def accept_handler(sock):
-        res = sock.accept()
-        # print("Handling")
-        client_s = res[0]
-        # print("Request:" + string_request)
+    return serverSocket
+
+
+def createZipClientHandler(filepath):
+    filesize = os.stat(filepath)[6]
+    headerBytes = b'HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Encoding: gzip\r\nContent-Length: '
+    sizeBytes = b'%s' % filesize
+    separatorBytes = b"\r\n\r\n"
+
+    def zipClientHandler(serverSocket):
+        clientSocket = None
+        clientFile = None
         try:
+            global hitcount
+
+            clientSocket, addr = serverSocket.accept()
+            # clientSocket.setblocking(False)
+
+            hitcount += 1
+            print('request %s' % hitcount)
+            clientFile = clientSocket.makefile('rwb', 0)
             path = None
-            partialLine = ""
-            while path is None:
-                request = client_s.recv(2048).decode('utf-8')
-                if request == "":
-                    continue
+            while True:
+                line = clientFile.readline()
+                if line == b'\r\n': # SHOULD THIS READ if not line or line == b'\r\n':
+                    break
                 else:
-                    lines = request.split("\r\n")
-                    if len(lines) == 1: # no newline yet
-                        partialLine += lines[0]
-                        continue
-                    else:
-                        if partialLine != "":
-                            lines[0] = partialLine + lines[0]
-                        getLine = lines[0]
-                        getLine = getLine.split()  # separate by whitespace
-                        (request_method, path, request_version) = getLine
-            header = ''
-            if request_method == "GET" and "favicon" not in path:
-                # print("GET "+ path)
-                header += 'HTTP/1.1 200 OK\r\n'
-                header += 'Content-Type: text/html; charset=UTF-8\r\n'
-                header += 'Content-Encoding: gzip\r\n'
-
-                replsize = os.stat(replpath)[6]
-                header += 'Content-Length: ' + str(replsize) + '\r\n'
-                header += '\r\n'
-
-                client_s.write(header.encode('ascii'))
-
+                    try:
+                        if line.startswith(b"GET"):
+                            (method, path, version) = line.split()
+                            if path != b"/":
+                                path is None
+                    except ValueError:
+                        pass
+            if path is not None:
+                # write the HTTP headers
+                clientSocket.write(headerBytes)
+                clientSocket.write(sizeBytes)
+                clientSocket.write(separatorBytes)
+                # write the file bytes
                 bufferLength = 512
                 buffer = bytearray(bufferLength)
-                with open(replpath, 'r') as f:
+                with open(filepath, 'r') as f:
                     while True:
                         readLength = f.readinto(buffer)
                         if readLength == bufferLength:
-                            client_s.write(buffer)
+                            clientSocket.write(buffer)
                         elif readLength > 0:
-                            client_s.write(memoryview(buffer)[:readLength])
+                            clientSocket.write(memoryview(buffer)[:readLength])
                         else:
                             break
-        except Exception as e:
-            sys.print_exception(e)
         finally:
-            client_s.close()
+            if clientSocket is not None:
+                clientSocket.close()
+            if clientFile is not None:
+                clientFile.close()
+            gc.collect()
 
+    return zipClientHandler
 
-    s.setsockopt(socket.SOL_SOCKET, 20, accept_handler)
-
-except OSError as e:
-    print("Full poweroff required. WebREPL not reloaded.")
-
-gc.collect()
+def run():
+    import webrepl
+    webrepl.start(password='vanguard')
+    return createServer(createZipClientHandler("vgkits/util/webrepl-inlined.html.gz"))
