@@ -42,6 +42,7 @@ def useWifi(ssid, auth, timeout=16000):
     started = ticks_ms()
     while True:
         if uplink.isconnected():
+            print(getUserAddress())
             return uplink
         else:
             if ticks_diff(ticks_ms(), started) < timeout:
@@ -49,6 +50,11 @@ def useWifi(ssid, auth, timeout=16000):
                 continue
             else:
                 return None
+
+
+def stopUsingWifi():
+    uplink = getUser()
+    uplink.active(False)
 
 
 def getProvider():
@@ -60,7 +66,7 @@ def getProvider():
 
 def provideWifi(ssid, auth):
     downlink = getProvider()
-    downlink.active()
+    downlink.active(True)
     downlink.config(essid=ssid, authmode=network.AUTH_WPA_WPA2_PSK, password=auth)
     return downlink
 
@@ -68,3 +74,7 @@ def provideWifi(ssid, auth):
 def provideInsecureWifi():
     return provideWifi(ssid='vanguard-{}'.format(suffix().decode('ascii')), auth="vanguard")
 
+
+def stopProvidingWifi():
+    downlink = getProvider()
+    downlink.active(False)
