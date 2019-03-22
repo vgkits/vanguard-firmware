@@ -1,2 +1,2 @@
-# launches webrepl and replserver
-import vgkits.util.bootServeRepl
+from vgkits.util.bootServeRepl import run
+run()
