@@ -2,8 +2,6 @@ import socket
 import os
 import gc
 
-hitcount = 0
-
 
 def createServer(handler=None):
     addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
@@ -36,13 +34,11 @@ def createZipClientHandler(filepath):
             clientSocket, addr = serverSocket.accept()
             # clientSocket.setblocking(False)
 
-            hitcount += 1
-            print('request %s' % hitcount)
             clientFile = clientSocket.makefile('rwb', 0)
             path = None
             while True:
                 line = clientFile.readline()
-                if line == b'\r\n': # SHOULD THIS READ if not line or line == b'\r\n':
+                if not line or line == b'\r\n':
                     break
                 else:
                     try:
