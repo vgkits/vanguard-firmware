@@ -1,5 +1,5 @@
 # TODO make https and http calls consistent with each other
-# TODO implement as async generators?
+# TODO implement as async generators - see ShrimpingIt/medea.https ?
 
 def getHttps(url, headers=None):
     _, _, host, path = url.split('/', 3)
