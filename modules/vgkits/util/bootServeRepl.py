@@ -75,6 +75,8 @@ def createZipClientHandler(filepath):
     return zipClientHandler
 
 def run():
+    import gc
     import webrepl
     webrepl.start(password='vanguard')
+    gc.collect()
     return createServer(createZipClientHandler("vgkits/util/webrepl-inlined.html.gz"))
