@@ -7,6 +7,7 @@ from uploads.deploy import run as uploadsDeploy
 from wifi.deploy import run as wifiDeploy
 from main.deploy import run as mainDeploy
 
+# TODO retire this in favour of Pypi vgkits-vanguard
 def runFlash():
 
     print("Checking Micropython image retrieved")
@@ -18,6 +19,7 @@ def runFlash():
     sleep(10) # give board and serial connection time to reset
 
 
+# TODO use uploads, wifi as reference for future vgkits-vanguard operations?
 def runInstall():
 
     print("Deploying Scripts")
