@@ -1,0 +1,8 @@
+setPixel(0, red)
+setPixel(1, green)
+setPixel(2, blue)
+setPixel(3, red)
+setPixel(4, green)
+setPixel(5, blue)
+setPixel(6, red)
+setPixel(7, green)
