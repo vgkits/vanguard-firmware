@@ -74,7 +74,7 @@ Attach from the Battery pack to the Vanguard board as follows
 	* The Vanguard board
 
 * Step 1: To plug in the Vanguard board to give it power
-	* The Vanguard's USB Micro-B socket can be fragile. Be careful when plugging and unplugging the cable. If the cable doesn't slide in easily, try turning the plug upside down
+	* Don't use force on a USB Micro-B socket. If the cable doesn't slide in easily, try turning the plug upside down
 
 * Step 2: To connect to the newly available wifi access point
 	* Wifi networks have a name or ESSID. Normally your laptop takes a few minutes to refresh the list of available network ESSIDs in menus. Turning on and off your laptop's wifi can accelerate this.
