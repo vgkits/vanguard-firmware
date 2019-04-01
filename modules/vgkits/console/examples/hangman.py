@@ -1,48 +1,90 @@
-def manLines(stage):
+phraseList = (
+    "it's raining cats and dogs",
+    "speak of the devil",
+    "the best of both worlds",
+    "see eye to eye",
+    "when pigs fly",
+    "costs an arm and a leg",
+    "once in a blue moon",
+    "a piece of cake",
+    "let the cat out of the bag",
+    "feeling under the weather",
+    "kill two birds with one stone"
+)
+
+def manLines(parts):
+    """
+    Yields from 0 to 4 lines of a 'hangman' stick man. ::
+           O
+          /|\
+           |
+          / \
+
+    :param parts: the number of body parts to show from 0 to 7
+    :return:
+    """
     # head line
-    if stage < 1:
+    if parts < 1:
         return      # don't draw anything
     else:
         yield " O"      # draw head
     # torso line
-    if stage < 2 :
+    if parts < 2 :
         return              # finished
     else:
-        if stage < 3:
+        if parts < 3:
             yield "/"       # draw one arm 
-        elif stage < 4:
+        elif parts < 4:
             yield "/ \\"    # draw two arms
         else:
             yield "/|\\"    # draw two arms and torso
     # hips line
-    if stage < 5:
+    if parts < 5:
         return          # finished
     else:
         yield " |"      # draw hips
     # legs line
-    if stage < 6:
+    if parts < 6:
         return
     else:
-        if stage < 7:
+        if parts < 7:
             yield "/"       # one leg
         else:
             yield "/ \\"    # both legs
 
-def gallowsLines(stage):
-    padding = "|    "
+
+def gallowsLines(parts):
+    """Yields a gallows, with a 'hangman' stick man showing the specified number of body parts. ::
+
+        ________
+        |       |
+        |       |
+        |       O
+        |      /|\
+        |       |
+        |      / \
+        |
+        |
+        |------------
+
+    :param parts:
+    :return:
+    """
     yield "_______"
+    padding = "|    "
     yield padding + " |"
     remaining = 5
-    for line in manLines(stage): # DRAW ENOUGH MAN FOR THIS STAGE
+    for line in manLines(parts): # DRAW MAN FOR THIS STAGE
         yield padding + line
         remaining = remaining - 1
-    for count in range(0, remaining): # EMPTY SPACE BELOW
+    for count in range(0, remaining): # FILL REMAINING SPACE
         yield padding
     yield "|-------"
-    
-def showWord(word, guesses):
+
+
+def maskPhrase(phrase, guesses):
     letters = []
-    for letter in word:
+    for letter in phrase:
         if letter is " " or letter in guesses:
             letters.append(letter)
         else:
@@ -50,65 +92,72 @@ def showWord(word, guesses):
     return "".join(letters)
 
 
-def hangmanRoutine(prompt):
-    word = ""
-    while word == "":
-        word = prompt("Enter an english word or phrase: ")
-        for letter in word:
-            if letter.isalpha():
-                continue
-            elif letter == " ":
-                continue
-            else:
-                word = ""
-                yield "You can only use letters or spaces"
-                break
-    word = word.lower() # force input to lowercase
-    prompt(None) # clear screen
+def createHangmanGame(show):
+    phrase = None
+
+    while phrase is None:
+        phrase = yield "Enter an english word or phrase (leave blank for the computer to choose: "
+
+        if phrase == "": # choose one at random
+            from vgkits.random import randint
+            phrase = phraseList[randint(len(phraseList))]
+        else: # check the user-supplied phrase
+            for letter in phrase:
+                if letter.isalpha():
+                    continue
+                elif letter == " ":
+                    continue
+                else:
+                    phrase = None
+                    show("You can only use letters or spaces")
+                    break
+
+    phrase = phrase.lower() # force input to lowercase
     guessed = ""
     stage = 0
-    yield from gallowsLines(stage)
-    yield ""
-    yield "Guess letters from the word or phrase below"
-    yield ""
+    for gallowsLine in gallowsLines(stage):
+        show(gallowsLine)
+    show("")
+    show("Guess letters from the word or phrase below")
+    show("")
     while True:
-        masked = showWord(word, guessed)
-        if masked == word:
-            yield "You won!"
-            yield ""
-            yield "The answer was '" + word + "'"
-            yield ""
-            return prompt(" Press enter to reset")
+        masked = maskPhrase(phrase, guessed)
+        if masked == phrase:
+            show("You won!")
+            show("")
+            show("The answer was '" + phrase + "'")
+            show("")
+            yield "Press enter to reset"
+            return
         else:
-            yield " ".join(list(masked))
-            yield ""
-            typed = prompt("Type a letter and press enter: ")
+            show("")
+            show(" ".join(list(masked))) # get the characters, put spaces between
+            show("")
+            typed = yield "Type a letter and press enter: "
             typed = typed.lower() # force input to lowercase
+            for gallowsLine in gallowsLines(stage):
+                show(gallowsLine)
+            show("")
             if len(typed) == 0:
-                yield "You didn't type anything"
+                show("You didn't type anything")
                 continue
             elif len(typed) > 1:
-                yield "You can't type more than one letter"
+                show("You can't type more than one letter")
                 continue
             elif typed in guessed:
-                yield "You already guessed " + typed
+                show("You already guessed " + typed)
                 continue
             else:
-                prompt(None) # clear screen
                 guessed = guessed + typed
-                if typed in word:
-                    yield from gallowsLines(stage)
-                    yield ""
-                    yield "Great! The word contains " + typed
-                    yield ""
+                if typed in phrase:
+                    show("Great! It contains " + typed)
                     continue
-                else :
+                else:
                     stage = stage + 1
-                    yield from gallowsLines(stage)
-                    yield ""
-                    yield "Oh no! The word doesn't contain " + typed
-                    yield ""
+                    show("Oh no! It doesn't contain " + typed)
+                    show("")
                 if stage == 7:
-                    yield "You used up all your chances and got hung!"
-                    yield "The word was '" + word + "'"
-                    return prompt("You lost! Press enter to reset")
+                    show("You used up all your chances and got hung!")
+                    show("The word was '" + phrase + "'")
+                    yield "You lost! Press enter to reset"
+                    return
