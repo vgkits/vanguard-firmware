@@ -44,9 +44,12 @@ def hostGame(gameMaker, repeat=True, port=8080):
                 response = None
                 prompt = None
 
+                requestCount = 0
                 while True:
                     try:
                         cl, addr = s.accept()
+
+                        resource = None
 
                         cl_file = cl.makefile('rwb', 0)
                         prefetch = False
@@ -61,10 +64,19 @@ def hostGame(gameMaker, repeat=True, port=8080):
                                     # TODO do not perform logic if you see header b'Purpose: prefetch\r\n' which is chrome prefetching (user won't see it)
                                     if line.startswith(b"GET"):
                                         (method, path, version) = line.split()
-                                        if b"response=" in path:
-                                            _, response = path.split(b"response=")
-                                            response = response.decode("ascii")
-                                            response = decodeuricomponent(response)
+                                        if b"?" in path:
+                                            resource, query = path.split(b"?")
+                                            if b"response=" in query:
+                                                _, response = path.split(b"response=")
+                                                response = response.decode("ascii")
+                                                response = decodeuricomponent(response)
+                                        else:
+                                            resource = path
+
+                                        requestCount += 1
+                                        print(f"Request {requestCount} is for resource {resource}")
+
+
                                     elif line.startswith(b"Purpose: prefetch"):
                                         prefetch = True
                                 except ValueError:
@@ -74,7 +86,7 @@ def hostGame(gameMaker, repeat=True, port=8080):
                         cl.send(htmlHead)
                         cl.send(htmlPreOpen)
 
-                        if prefetch is not True:
+                        if resource == b"/":
                             if response is not None and prompt is not None:
                                 print("Response triggered by previous prompt")
                                 prompt = game.send(response)    # response prompted - pass to game
