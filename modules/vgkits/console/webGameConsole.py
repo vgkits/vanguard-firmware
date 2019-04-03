@@ -55,16 +55,18 @@ def hostGame(gameMaker, repeat=True, port=8080):
 
         cl = None
 
-        def show(text):
-            textType = type(text)
-            if textType is str:
-                # TODO entity encode strings
-                cl.send(text.encode('ascii'))
-                cl.send(htmlBreak)
-            elif textType is bytes:
-                cl.send(text) # send bytestrings unencoded
-            else:
-                raise Exception('Cannot print object of type ' + str(textType))
+        def show(*items, end="\n"):
+            for item in items:
+                itemType = type(item)
+                if itemType is str:
+                    # TODO entity encode strings?
+                    cl.send(item.encode('ascii'))
+                    if end == "\n":
+                        cl.send(htmlBreak)
+                elif itemType is bytes:
+                    cl.send(item) # send bytestrings unencoded
+                else:
+                    raise Exception('Cannot print object of type {}'.format(itemType))
 
 
         while True:
