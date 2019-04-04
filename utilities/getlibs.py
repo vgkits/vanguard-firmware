@@ -2,7 +2,7 @@ import sys
 import pip
 
 def run():
-    sys.argv="pip install pyserial esptool adafruit-ampy".split()
+    sys.argv="pip install pyserial esptool adafruit-ampy six rshell".split()
     pip.main()
 
 if __name__ == "__main__":
