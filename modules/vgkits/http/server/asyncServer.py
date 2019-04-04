@@ -1,3 +1,4 @@
+
 # userver.py Demo of simple uasyncio-based echo server
 
 # Released under the MIT licence
@@ -7,7 +8,7 @@ import usocket as socket
 import uasyncio as asyncio
 import uselect as select
 
-headers200 = b"""HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n""" # should be double \r\n ?
+headers200 = b"""HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n"""
 
 htmlHead = b"""
 <!DOCTYPE html>
