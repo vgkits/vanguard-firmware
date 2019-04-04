@@ -36,16 +36,16 @@ def calculateNewNumber(numberSet, calculation):
             elif operator is "*" or operator is "x":
                 result = numberBefore * numberAfter
             elif operator is "/":
-                result = numberBefore / numberAfter
+                result = numberBefore // numberAfter
             numberSet.add(result)
             return result, "%d %s %d = %d" % (numberBefore, operator, numberAfter, result)
     else:
         raise Exception("'%s' isn't a two figure sum?" % calculation)
     
         
-def diceRoutine(prompt):
+def diceRoutine(print):
     import gc
-    name = prompt("What is your name?\n")
+    name = yield "What is your name?\n"
     while True:
         turn = 0
         numbers = getRandomDice()
@@ -55,13 +55,13 @@ def diceRoutine(prompt):
             numberSequence = sorted(list(numbers))
             try:
                 turn = turn + 1
-                calculation = prompt("Turn %d: Enter a sum using %s to get closer to %d \n" % (turn, numberSequence, target))
+                calculation = yield "Turn %d: Enter a sum using %s to get closer to %d \n" % (turn, numberSequence, target)
                 result, working = calculateNewNumber(numbers, calculation)
-                yield working
+                print(working)
                 if result is target:
                     break
             except Exception as e:
-                yield str(e)
-                yield "Type a sum like %d %s %d" % (getRandomItem(numberSequence), getRandomItem(operators), getRandomItem(numberSequence))
-        yield "Well done, %s, you reached %d in %d turns!" % (name, target, turn)
+                print(str(e))
+                print("Type a sum like %d %s %d" % (getRandomItem(numberSequence), getRandomItem(operators), getRandomItem(numberSequence)))
+        print("Well done, %s, you reached %d in %d turns!" % (name, target, turn))
         gc.collect()
