@@ -9,7 +9,26 @@ phraseList = (
     "a piece of cake",
     "let the cat out of the bag",
     "feeling under the weather",
-    "kill two birds with one stone"
+    "kill two birds with one stone",
+    "A bird in the hand is worth two in the bush",
+    "A change is as good as a rest",
+    "A fish out of water",
+    "A friend in need is a friend indeed",
+    "A journey of a thousand miles begins with a single step",
+    "A leopard cannot change its spots",
+    "A watched pot never boils",
+    "Curiosity killed the cat",
+    "A cat may look at a king",
+    "Raining cats and dogs",
+    "Let the cat out of the bag",
+    "No room to swing a cat",
+    "The cats pyjamas",
+    "Beauty is in the eye of the beholder",
+    "Better to have loved and lost than never to have loved at all",
+    "Birds of a feather flock together",
+    "Butter wouldn't melt in his mouth",
+    "Children should be seen and not heard",
+    "The darkest hour is just before the dawn",
 )
 
 def manLines(parts):
@@ -96,7 +115,7 @@ def createHangmanGame(show):
     phrase = None
 
     while phrase is None:
-        phrase = yield "Enter an english word or phrase (leave blank for the computer to choose: "
+        phrase = yield "Enter a word or phrase (leave blank for the computer to choose): "
 
         if phrase == "": # choose one at random
             from vgkits.random import randint
@@ -115,12 +134,12 @@ def createHangmanGame(show):
     phrase = phrase.lower() # force input to lowercase
     guessed = ""
     stage = 0
-    for gallowsLine in gallowsLines(stage):
-        show(gallowsLine)
-    show("")
-    show("Guess letters from the word or phrase below")
+    show("Guess a letter from the word or phrase below")
     show("")
     while True:
+        for gallowsLine in gallowsLines(stage):
+            show(gallowsLine)
+        show("")
         masked = maskPhrase(phrase, guessed)
         if masked == phrase:
             show("You won!")
@@ -135,17 +154,14 @@ def createHangmanGame(show):
             show("")
             typed = yield "Type a letter and press enter: "
             typed = typed.lower() # force input to lowercase
-            for gallowsLine in gallowsLines(stage):
-                show(gallowsLine)
-            show("")
             if len(typed) == 0:
-                show("You didn't type anything")
+                show("You didn't type a letter!")
                 continue
             elif len(typed) > 1:
-                show("You can't type more than one letter")
+                show("You can't type more than one letter!")
                 continue
             elif typed in guessed:
-                show("You already guessed " + typed)
+                show("You already guessed " + typed + "!")
                 continue
             else:
                 guessed = guessed + typed
@@ -158,6 +174,6 @@ def createHangmanGame(show):
                     show("")
                 if stage == 7:
                     show("You used up all your chances and got hung!")
-                    show("The word was '" + phrase + "'")
+                    show("The phrase was '" + phrase + "'")
                     yield "You lost! Press enter to reset"
                     return
