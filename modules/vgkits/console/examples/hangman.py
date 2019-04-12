@@ -111,7 +111,7 @@ def maskPhrase(phrase, guesses):
     return "".join(letters)
 
 
-def createHangmanGame(show):
+def createSequence(show):
     phrase = None
 
     while phrase is None:
