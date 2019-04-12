@@ -31,9 +31,11 @@ def decodeuricomponent(string): # original from https://gitlab.com/superfly/dawn
     return arr[0] + ''.join(arr2)
 
 
-def hostGame(gameMaker, repeat=True, port=8080):
+def hostGame(gameMaker, repeat=True, port=8080, debug=False):
 
     gameMap = {}
+
+    cl = None
 
     def getGame(cookie):
         try:
@@ -45,6 +47,32 @@ def hostGame(gameMaker, repeat=True, port=8080):
         gameMap[cookie] = value
         return value
 
+    def doprint(*items, sep=b" ", end=b"\n"):
+        if type(sep) is str:
+            sep = sep.encode('ascii')
+        if type(end) is str:
+            end = end.encode('ascii')
+        if end == b"\n":
+            end = htmlBreak
+        try:
+            prev = None
+            for item in items:
+                if prev is not None:
+                    cl.send(sep)
+                itemType = type(item)
+                if itemType is str: # TODO entity encode strings?
+                    item = item.encode('ascii')
+                elif itemType is bytes:
+                    pass # send bytestrings unencoded
+                else:
+                    raise Exception('Cannot coerce {} to bytes'.format(itemType))
+                cl.send(item)
+                prev = item
+            cl.send(end)
+        except OSError as e:
+            print(str(e))
+
+    # set up a server socket
     try:
         addr = socket.getaddrinfo('0.0.0.0', port)[0][-1]
 
@@ -53,22 +81,7 @@ def hostGame(gameMaker, repeat=True, port=8080):
         s.bind(addr)
         s.listen(1)
 
-        cl = None
-
-        def show(*items, end="\n"):
-            for item in items:
-                itemType = type(item)
-                if itemType is str:
-                    # TODO entity encode strings?
-                    cl.send(item.encode('ascii'))
-                    if end == "\n":
-                        cl.send(htmlBreak)
-                elif itemType is bytes:
-                    cl.send(item) # send bytestrings unencoded
-                else:
-                    raise Exception('Cannot print object of type {}'.format(itemType))
-
-
+        # work out why games break if they don't have two question (don't end with a press enter to reset)
         while True:
             try:
 
@@ -76,14 +89,17 @@ def hostGame(gameMaker, repeat=True, port=8080):
 
                 while True:
                     try:
+                        # handle client sockets one by one
                         cl, addr = s.accept()
 
-                        cookie = None
+                        cookies = {}
                         resource = None
 
                         cl_file = cl.makefile('rwb', 0)
                         while True:
                             line = cl_file.readline()
+                            if debug:
+                                print(line)
                             if not line or line == b'\r\n':
                                 break
                             else:
@@ -98,22 +114,29 @@ def hostGame(gameMaker, repeat=True, port=8080):
                                                 response = decodeuricomponent(response)
                                         else:
                                             resource = path
-                                    elif line.startswith(b"Cookie"):
-                                        _, cookie = line.split(b":")
-                                        cookie = cookie.strip()
-                                        if cookie == b"":
-                                            cookie = None
+                                    elif line.startswith(b"Cookie:"):
+                                        _, cookieList = line.split(b":")
+                                        cookieList = cookieList.split(b";")
+                                        for cookie in cookieList:
+                                            cookieName, cookieValue = cookie.strip().split(b"=")
+                                            cookies[cookieName] = cookieValue
                                 except ValueError:
                                     pass
+
+                        if debug:
+                            print("Cookies:")
+                            print(str(cookies))
 
                         for header in defaultHeaders:
                             cl.send(header)
                             cl.send(crlf)
 
-                        if cookie is None:
-                            cookie = str(randint(1000000000)).encode('ascii')
-                            cl.send(b"Set-Cookie: ")
-                            cl.send(cookie)
+                        if b"player" in cookies:
+                            playerCookie = cookies[b"player"]
+                        else: # allocate random player number
+                            playerCookie = str(randint(1000000000)).encode('ascii')
+                            cl.send(b"Set-Cookie: player=")
+                            cl.send(playerCookie)
                             cl.send(crlf)
 
                         # repeated crlf means end of headers
@@ -123,11 +146,11 @@ def hostGame(gameMaker, repeat=True, port=8080):
                         cl.send(htmlPreOpen)
 
                         if resource == b"/":
-                            game = getGame(cookie)
+                            game = getGame(playerCookie)
                             while True:
                                 try:
                                     if game is None:
-                                        game = setGame(cookie, gameMaker(show)) # create a new game
+                                        game = setGame(playerCookie, gameMaker(doprint)) # create a new game
                                         prompt = game.send(None)  # generate next prompt, response not expected
                                     else:
                                         if response is not None:
@@ -139,28 +162,24 @@ def hostGame(gameMaker, repeat=True, port=8080):
                                     break
                                 except StopIteration:
                                     if repeat:
-                                        game = setGame(cookie, None)
+                                        game = setGame(playerCookie, None)
                                         continue # create and run the game again
                                     else:
                                         cl.send("Game Over. Server closing".encode('ascii'))
                                         break
-                                except Exception as e:
-                                    show(e)
 
                         cl.send(htmlPreClose)
                         cl.send(htmlForm)
                         cl.send(htmlFoot)
 
+                    except Exception as e:
+                        print(e)
                     finally:
-                        cl.close()
-                        cl = None
+                        if cl is not None:
+                            cl.close()
+                            cl = None
             finally:
                 if not repeat:
                     break
     finally:
         s.close()
-
-
-if __name__ == "__main__":
-    from examples.hello import *
-    hostGame(createHelloGame)    
