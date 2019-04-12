@@ -43,7 +43,7 @@ def calculateNewNumber(numberSet, calculation):
         raise Exception("'%s' isn't a two figure sum?" % calculation)
     
         
-def diceRoutine(print):
+def createSequence(print):
     import gc
     name = yield "What is your name?\n"
     while True:
