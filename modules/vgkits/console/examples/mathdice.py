@@ -45,23 +45,21 @@ def calculateNewNumber(numberSet, calculation):
         
 def createSequence(print):
     import gc
-    name = yield "What is your name?\n"
-    while True:
-        turn = 0
-        numbers = getRandomDice()
-        target = getRandomTarget()
-        result = None
-        while result is not target:
-            numberSequence = sorted(list(numbers))
-            try:
-                turn = turn + 1
-                calculation = yield "Turn %d: Enter a sum using %s to get closer to %d \n" % (turn, numberSequence, target)
-                result, working = calculateNewNumber(numbers, calculation)
-                print(working)
-                if result is target:
-                    break
-            except Exception as e:
-                print(str(e))
-                print("Type a sum like %d %s %d" % (getRandomItem(numberSequence), getRandomItem(operators), getRandomItem(numberSequence)))
-        print("Well done, %s, you reached %d in %d turns!" % (name, target, turn))
+    turn = 0
+    numbers = getRandomDice()
+    target = getRandomTarget()
+    result = None
+    while result is not target:
+        numberSequence = sorted(list(numbers))
+        try:
+            turn = turn + 1
+            calculation = yield "Turn %d: Enter a sum using %s to get closer to %d \n" % (turn, numberSequence, target)
+            result, working = calculateNewNumber(numbers, calculation)
+            print(working)
+            if result is target:
+                break
+        except Exception as e:
+            print(str(e))
+            print("Type a sum like %d %s %d" % (getRandomItem(numberSequence), getRandomItem(operators), getRandomItem(numberSequence)))
         gc.collect()
+    print("Well done, you reached %d in %d turns!" % (target, turn))
