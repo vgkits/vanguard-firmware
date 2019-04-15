@@ -5,11 +5,24 @@ from vgkits.random import randint
 htmlHead = b"""
 <!DOCTYPE html>
 <html>
-    <head><title>Example page</title></head>
+    <head>
+        <title>Example page</title>
+        <style>
+            pre {
+                overflow-x: auto;
+                white-space: pre-wrap;
+                white-space: -moz-pre-wrap;
+                white-space: -pre-wrap;
+                white-space: -o-pre-wrap;
+                word-wrap: break-word;
+            }
+        </style>
+    </head>
     <body>"""
 htmlPreOpen = b"""<pre>"""
 htmlPreClose = b"""</pre>"""
-htmlForm = b"""<form method="GET" autocomplete="off"><input type="text" name="response" autofocus></form>"""
+htmlResetForm = b"""<form method="GET" style="position:absolute; top:0px; right:0px" autocomplete="off"><button type="submit" name="reset" value="true">X</button></form>"""
+htmlResponseForm = b"""<form method="GET" autocomplete="off"><input type="text" name="response" autofocus></form>"""
 htmlBreak = b"<br/>"
 htmlFoot = b"""
     </body>
@@ -44,14 +57,17 @@ def hostGame(gameMaker, repeat=True, port=8080, debug=False):
             return None
 
     def setGame(cookie, value):
-        gameMap[cookie] = value
+        if value is None:
+            del gameMap[cookie]
+        else:
+            gameMap[cookie] = value
         return value
 
     def doprint(*items, sep=b" ", end=b"\n"):
         if type(sep) is str:
-            sep = sep.encode('ascii')
+            sep = sep.encode('utf-8')
         if type(end) is str:
-            end = end.encode('ascii')
+            end = end.encode('utf-8')
         if end == b"\n":
             end = htmlBreak
         try:
@@ -61,7 +77,7 @@ def hostGame(gameMaker, repeat=True, port=8080, debug=False):
                     cl.send(sep)
                 itemType = type(item)
                 if itemType is str: # TODO entity encode strings?
-                    item = item.encode('ascii')
+                    item = item.encode('utf-8')
                 elif itemType is bytes:
                     pass # send bytestrings unencoded
                 else:
@@ -94,6 +110,7 @@ def hostGame(gameMaker, repeat=True, port=8080, debug=False):
 
                         cookies = {}
                         resource = None
+                        reset = None
 
                         cl_file = cl.makefile('rwb', 0)
                         while True:
@@ -110,8 +127,11 @@ def hostGame(gameMaker, repeat=True, port=8080, debug=False):
                                             resource, query = path.split(b"?")
                                             if b"response=" in query:
                                                 _, response = path.split(b"response=")
-                                                response = response.decode("ascii")
+                                                response = response.decode("utf-8")
                                                 response = decodeuricomponent(response)
+                                            if b"reset=" in query:
+                                                reset = True
+
                                         else:
                                             resource = path
                                     elif line.startswith(b"Cookie:"):
@@ -134,7 +154,7 @@ def hostGame(gameMaker, repeat=True, port=8080, debug=False):
                         if b"player" in cookies:
                             playerCookie = cookies[b"player"]
                         else: # allocate random player number
-                            playerCookie = str(randint(1000000000)).encode('ascii')
+                            playerCookie = str(randint(1000000000)).encode('utf-8')
                             cl.send(b"Set-Cookie: player=")
                             cl.send(playerCookie)
                             cl.send(crlf)
@@ -143,7 +163,11 @@ def hostGame(gameMaker, repeat=True, port=8080, debug=False):
                         cl.send(crlf)
 
                         cl.send(htmlHead)
+                        cl.send(htmlResetForm)
                         cl.send(htmlPreOpen)
+
+                        if reset:
+                            setGame(playerCookie, None)
 
                         if resource == b"/":
                             game = getGame(playerCookie)
@@ -157,7 +181,7 @@ def hostGame(gameMaker, repeat=True, port=8080, debug=False):
                                             prompt = game.send(response)  # generate next prompt, response is expected
                                         else:
                                             pass # no response, serve previous prompt again
-                                    cl.send(prompt.encode('ascii'))
+                                    cl.send(prompt.encode('utf-8'))
                                     cl.send(htmlBreak)
                                     break
                                 except StopIteration:
@@ -165,11 +189,11 @@ def hostGame(gameMaker, repeat=True, port=8080, debug=False):
                                         game = setGame(playerCookie, None)
                                         continue # create and run the game again
                                     else:
-                                        cl.send("Game Over. Server closing".encode('ascii'))
+                                        cl.send(b"Game Over. Server closing")
                                         break
 
                         cl.send(htmlPreClose)
-                        cl.send(htmlForm)
+                        cl.send(htmlResponseForm)
                         cl.send(htmlFoot)
 
                     except Exception as e:
