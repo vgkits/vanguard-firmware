@@ -43,6 +43,48 @@ def decodeuricomponent(string): # original from https://gitlab.com/superfly/dawn
     arr2 = [chr(int(part[:2], 16)) + part[2:] for part in arr[1:]]
     return arr[0] + ''.join(arr2)
 
+def mapRequest(clientSocket, debug=False):
+    requestMap = {}
+    cookies = {}
+    params = {}
+
+    cl_file = clientSocket.makefile('rwb', 0)
+    while True:
+        line = cl_file.readline()
+        if debug:
+            print(line)
+        if not line or line == b'\r\n':
+            break
+        else:
+            try:
+                if line.startswith(b"GET"):
+                    (method, path, version) = line.split()
+                    requestMap.update(
+                        method=method,
+                        path=path,
+                    )
+                    if b"?" in path:
+                        requestMap.update(params=params)
+                        resource, query = path.split(b"?")
+                        paramPairs = query.split(b"&")
+                        for paramPair in paramPairs:
+                            paramName, paramValue = paramPair.split(b"=")
+                            params[paramName] = paramValue
+                        requestMap.update(resource=resource)
+
+                    else:
+                        requestMap.update(resource=path)
+                elif line.startswith(b"Cookie:"):
+                    requestMap.update(cookies=cookies)
+                    _, cookiePairs = line.split(b":")
+                    cookiePairs = cookiePairs.split(b";")
+                    for cookiePair in cookiePairs:
+                        cookieName, cookieValue = cookiePair.strip().split(b"=")
+                        cookies[cookieName] = cookieValue
+            except ValueError:
+                pass
+    return requestMap
+
 
 def hostGame(gameMaker, repeat=True, port=8080, debug=False):
 
@@ -108,52 +150,31 @@ def hostGame(gameMaker, repeat=True, port=8080, debug=False):
                         # handle client sockets one by one
                         cl, addr = s.accept()
 
-                        cookies = {}
-                        resource = None
-                        reset = None
-
-                        cl_file = cl.makefile('rwb', 0)
-                        while True:
-                            line = cl_file.readline()
-                            if debug:
-                                print(line)
-                            if not line or line == b'\r\n':
-                                break
-                            else:
-                                try:
-                                    if line.startswith(b"GET"):
-                                        (method, path, version) = line.split()
-                                        if b"?" in path:
-                                            resource, query = path.split(b"?")
-                                            if b"response=" in query:
-                                                _, response = path.split(b"response=")
-                                                response = response.decode("utf-8")
-                                                response = decodeuricomponent(response)
-                                            if b"reset=" in query:
-                                                reset = True
-
-                                        else:
-                                            resource = path
-                                    elif line.startswith(b"Cookie:"):
-                                        _, cookieList = line.split(b":")
-                                        cookieList = cookieList.split(b";")
-                                        for cookie in cookieList:
-                                            cookieName, cookieValue = cookie.strip().split(b"=")
-                                            cookies[cookieName] = cookieValue
-                                except ValueError:
-                                    pass
+                        requestMap = mapRequest(cl)
 
                         if debug:
-                            print("Cookies:")
-                            print(str(cookies))
+                            print(requestMap)
+
+                        resource = requestMap['resource']
+                        params = requestMap['params']
+                        cookies = requestMap['cookies']
+
+                        reset = b"reset" in params
+
+                        try:
+                            response = params[b"response"]
+                            response = response.decode("utf-8")
+                            response = decodeuricomponent(response)
+                        except KeyError:
+                            response = None
 
                         for header in defaultHeaders:
                             cl.send(header)
                             cl.send(crlf)
 
-                        if b"player" in cookies:
+                        try:
                             playerCookie = cookies[b"player"]
-                        else: # allocate random player number
+                        except KeyError: # allocate random number, send as cookie
                             playerCookie = str(randint(1000000000)).encode('utf-8')
                             cl.send(b"Set-Cookie: player=")
                             cl.send(playerCookie)
