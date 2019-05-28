@@ -1,4 +1,4 @@
-def createHelloGame(print):
+def createSequence(print):
     print("Welcome to the game")
     username = yield "What is your name? "
     print("Hello " + username)
