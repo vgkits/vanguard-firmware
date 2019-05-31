@@ -40,7 +40,7 @@ def calculateNewNumber(numberSet, calculation):
             numberSet.add(result)
             return result, "%d %s %d = %d" % (numberBefore, operator, numberAfter, result)
     else:
-        raise Exception("'%s' isn't a two figure sum?" % calculation)
+        raise Exception("'%s' isn't a two figure sum!" % calculation)
     
         
 def createSequence(print):
@@ -63,3 +63,4 @@ def createSequence(print):
             print("Type a sum like %d %s %d" % (getRandomItem(numberSequence), getRandomItem(operators), getRandomItem(numberSequence)))
         gc.collect()
     print("Well done, you reached %d in %d turns!" % (target, turn))
+    yield "Press Enter to Continue"
