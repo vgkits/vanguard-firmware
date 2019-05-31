@@ -1,7 +1,7 @@
 import socket
 
 from vgkits.random import randint
-from vgkits.http.server.request import mapRequest
+from vgkits.http.server.request import *
 
 htmlHead = b"""
 <!DOCTYPE html>
@@ -40,8 +40,10 @@ def decodeuricomponent(string): # original from https://gitlab.com/superfly/dawn
     return arr[0] + ''.join(arr2)
 
 
-def writeHttpHeaders(cl, status=200, contentType=b"text/html", charSet=b"UTF-8"):
-    cl.send(b"HTTP/1.1 "); cl.send(str(status).encode("ascii")); cl.send(b" OK"); cl.send(crlf)
+def writeHttpHeaders(cl, status=b"200", contentType=b"text/html", charSet=b"UTF-8"):
+    if type(status) is not bytes:
+        status = str(status).encode('utf-8')
+    cl.send(b"HTTP/1.1 "); cl.send(status); cl.send(b" OK"); cl.send(crlf)
     cl.send(b"Content-Type:"); cl.send(contentType); cl.send(b" ; charset="); cl.send(charSet); cl.send(crlf)
     cl.send(b"Connection: close"); cl.send(crlf)
 
@@ -86,22 +88,17 @@ def createCookie(requestMap, cookieName=b"session"):
     cookies = requestMap.get("cookies")
     if cookies is None:
         cookies = {}
-        requestMap.set("cookies", cookies)
+        requestMap["cookies"] = cookies
     cookieValue = cookies.get(cookieName)
     if cookieValue is None:
         cookieValue = str(randint(1000000000)).encode('utf-8')
-        cookies.set(cookieName, cookieValue)
+        cookies[cookieName] = cookieValue
     return cookieValue
 
 
-class WebException(Exception):
-    pass
+def writeItem(cl, obj):
+    cl.send(str(obj).encode('utf-8'))
 
-class SessionException(WebException):
-    pass
-
-class NotFoundException(WebException):
-    pass
 
 gameMap = {}
 
@@ -117,7 +114,7 @@ def getGame(cookie):
 
 def setGame(cookie, value):
     if value is None:
-        del gameMap[cookie]
+        gameMap.pop(cookie, None)
     else:
         gameMap[cookie] = value
     return value
@@ -165,26 +162,26 @@ def hostGame(gameMaker, port=8080, repeat=True, resetAll=True, debug=False):
         s.bind(addr)
         s.listen(1)
 
-        while True:
-
-            try: # handle requests from inbound client sockets one by one
-
-                cl, addr = s.accept()
-
-                status = None
-
-                requestMap = mapRequest(cl, debug)
-
-                if debug:
-                    print(requestMap)
-
-                resource = requestMap.get('resource')
-
-                sessionCookie = getCookie(requestMap)
-
-                reset = sessionCookie is None
+        while True: # handle requests from inbound client sockets one by one
+            try:
 
                 try:
+
+                    cl, addr = s.accept()
+
+                    requestMap = mapRequest(cl, debug)
+
+                    if requestMap == {}:
+                        raise WebException("Received no client request")
+
+                    if debug:
+                        print(requestMap)
+
+                    resource = requestMap.get('resource')
+
+                    sessionCookie = getCookie(requestMap)
+
+                    reset = sessionCookie is None
 
                     if resource == b"/":
 
@@ -200,7 +197,7 @@ def hostGame(gameMaker, port=8080, repeat=True, resetAll=True, debug=False):
                             if game is None:
                                 reset = True
                             else:
-                                raise SessionException("In-progress game: GET request invalid")
+                                raise BadRequestException("In-progress game: GET request invalid")
                         elif method == b"POST":
                             if params is not None:
                                 if b"reset" in params:
@@ -214,7 +211,7 @@ def hostGame(gameMaker, port=8080, repeat=True, resetAll=True, debug=False):
                         else:
                             game = getGame(sessionCookie)
                             if game is None:
-                                raise SessionException("In-progress game not available")
+                                raise BadRequestException("In-progress game not available")
 
                         response = None
                         if method == b"POST" and not reset:
@@ -224,7 +221,7 @@ def hostGame(gameMaker, port=8080, repeat=True, resetAll=True, debug=False):
                                 response = response.decode("utf-8")
                                 response = decodeuricomponent(response)
                             elif not reset:
-                                raise SessionException("In-progress game: POST without 'response' param invalid")
+                                raise BadRequestException("In-progress game: POST without 'response' param invalid")
 
                         writeHttpHeaders(cl)
 
@@ -241,12 +238,12 @@ def hostGame(gameMaker, port=8080, repeat=True, resetAll=True, debug=False):
                         while repeat:
                             try:
                                 prompt = game.send(response)  # coroutine calls doprint closure on cl.send()
-                                cl.send(prompt.encode('utf-8'))
+                                writeItem(cl, prompt)
                                 cl.send(htmlBreak)
                                 break
                             except StopIteration:
                                 if repeat:
-                                    setGame(sessionCookie, gameMaker(doprint))
+                                    game = setGame(sessionCookie, gameMaker(doprint))
                                     response = None
                                     continue # create and run the game again
                                 else:
@@ -261,27 +258,30 @@ def hostGame(gameMaker, port=8080, repeat=True, resetAll=True, debug=False):
                         continue
 
                     else: # unknown resource
-                        raise SessionException("Unknown resource " + str(resource))
+                        raise NotFoundException("Unknown resource ", resource)
 
-
-            except SessionException as se:
-                print(se)
-
-                if type(se) is NotFoundException:
-                    status = 404
-                else:
-                    status = 400
-            except BrokenPipeError as bpe:
-                print("Broken Pipe Error")
-            except Exception as e:
-                print(e)
-            finally:
-                if cl is not None:
-                    writeHttpHeaders(cl, status=status)
-                    writeHtmlBegin()
-
-                    writeHtmlEnd()
+                except BrokenPipeError as bpe:
+                    # client has already closed socket from their end
+                    print("Broken Pipe Error")
                     cl.close()
                     cl = None
+                except Exception as e:
+                    print(e)
+                    if cl is not None:
+                        status = e.status if isinstance(e, WebException) else b"500"
+                        writeHttpHeaders(cl, status=status)
+                        writeHtmlBegin(cl)
+                        cl.send(b"Error: ")
+                        if isinstance(e, WebException):
+                            cl.send(e.status)
+                            cl.send(e.message)
+                        writeItem(cl, repr(e))
+                        writeHtmlEnd(cl)
+                finally:
+                    if cl is not None:
+                        cl.close()
+                        cl = None
+            except Exception as e: # exception while handling an exception
+                print(e)
     finally:
         s.close()
