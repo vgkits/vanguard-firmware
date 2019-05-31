@@ -8,6 +8,7 @@ html = b"""<!DOCTYPE html>
 """
 
 import socket
+import gc
 
 hitcount = 0
 
@@ -60,18 +61,26 @@ def handleRequest(serverSocket):
             clientFile.close()
         gc.collect()
 
+
 def serveForeground():
-    socket = monitorRequests()
+    serverSocket = monitorRequests()
     while True:
-        handleRequest(socket)
+        handleRequest(serverSocket)
+
 
 def serveBackground():
-    socket = monitorRequests(handleRequest)
+    serverSocket = monitorRequests(handleRequest)
+    return serverSocket
     
-#serveForeground()
-serveBackground()
 
-from time import sleep
-while True:
-    sleep(10)
-    print("Heartbeat")
+def run():
+    serverSocket = serveBackground()
+
+    from time import sleep
+    while True:
+        sleep(10)
+        print("Heartbeat")
+
+
+if __name__ == "__main__":
+    run()
