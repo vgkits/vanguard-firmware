@@ -1,4 +1,5 @@
 import socket
+import gc
 
 from vgkits.random import randint
 from vgkits.http.server.request import *
@@ -167,12 +168,15 @@ def hostGame(gameMaker, port=8080, repeat=True, resetAll=True, debug=False):
 
                 try:
 
+                    gc.collect() # clear memory
+                    print("Memory:", gc.mem_free())
+
                     cl, addr = s.accept()
 
                     requestMap = mapRequest(cl, debug)
 
-                    if requestMap == {}:
-                        raise WebException("Received no client request")
+                    if requestMap is None or requestMap == {}:
+                        raise WebException("Request empty")
 
                     if debug:
                         print(requestMap)
@@ -242,14 +246,13 @@ def hostGame(gameMaker, port=8080, repeat=True, resetAll=True, debug=False):
                                 cl.send(htmlBreak)
                                 break
                             except StopIteration:
-                                if repeat:
+                                if repeat: # create and run the game again
                                     game = setGame(sessionCookie, gameMaker(doprint))
                                     response = None
-                                    continue # create and run the game again
+                                    continue
                                 else:
                                     cl.send(b"Game Over. Server closing")
                                     break
-
 
                         writeHtmlEnd(cl)
 
@@ -260,16 +263,13 @@ def hostGame(gameMaker, port=8080, repeat=True, resetAll=True, debug=False):
                     else: # unknown resource
                         raise NotFoundException("Unknown resource ", resource)
 
-                except BrokenPipeError as bpe:
-                    # client has already closed socket from their end
-                    print("Broken Pipe Error")
-                    cl.close()
-                    cl = None
-                except Exception as e:
-                    print(e)
+                except Exception as e: # intercept and write error page
                     if cl is not None:
-                        status = e.status if isinstance(e, WebException) else b"500"
-                        writeHttpHeaders(cl, status=status)
+                        if isinstance(e, WebException):
+                            writeHttpHeaders(cl, status=e.status, message=e.message)
+                        else:
+                            writeHttpHeaders(cl, status=b"500", message=b"Internal Server Error")
+                        status = e.status if  else b"500"
                         writeHtmlBegin(cl)
                         cl.send(b"Error: ")
                         if isinstance(e, WebException):
@@ -277,11 +277,15 @@ def hostGame(gameMaker, port=8080, repeat=True, resetAll=True, debug=False):
                             cl.send(e.message)
                         writeItem(cl, repr(e))
                         writeHtmlEnd(cl)
+                    raise
                 finally:
                     if cl is not None:
-                        cl.close()
-                        cl = None
-            except Exception as e: # exception while handling an exception
-                print(e)
+                        try:
+                            cl.close()
+                        finally:
+                            cl = None
+            except Exception as e:
+                print("Exception in " + __name__)
+                print(repr(e))
     finally:
         s.close()
