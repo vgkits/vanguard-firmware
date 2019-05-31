@@ -1,6 +1,7 @@
 import socket
 
 from vgkits.random import randint
+from vgkits.http.server.request import mapRequest
 
 htmlHead = b"""
 <!DOCTYPE html>
@@ -21,21 +22,16 @@ htmlHead = b"""
     <body>"""
 htmlPreOpen = b"""<pre>"""
 htmlPreClose = b"""</pre>"""
-htmlResetForm = b"""<form method="GET" style="position:absolute; top:0px; right:0px" autocomplete="off"><button type="submit" name="reset" value="true">X</button></form>"""
-htmlResponseForm = b"""<form method="GET" autocomplete="off"><input type="text" name="response" autofocus></form>"""
+htmlResetForm = b"""<form method="POST" style="position:absolute; top:0px; right:0px" autocomplete="off"><button type="submit" name="reset" value="true">X</button></form>"""
+htmlResponseForm = b"""<form method="POST" autocomplete="off"><input type="text" name="response" autofocus></form>"""
 htmlBreak = b"<br/>"
 htmlFoot = b"""
     </body>
 </html>
 """
 
-defaultHeaders = (
-    b"HTTP/1.1 200 OK",
-    b"Content-Type: text/html; charset=UTF-8",
-    b"Connection: close",
-)
-
 crlf=b"\r\n"
+
 
 def decodeuricomponent(string): # original from https://gitlab.com/superfly/dawndoor/blob/master/src/dawndoor/web.py
     string = string.replace('+', ' ')
@@ -44,80 +40,98 @@ def decodeuricomponent(string): # original from https://gitlab.com/superfly/dawn
     return arr[0] + ''.join(arr2)
 
 
-def mapRequest(clientSocket, debug=False):
-    """Consumes HTTP headers extracting GET and POST method, path, resource, param and cookie keypairs.
-    Returns extracted values in a dict"""
-    cookies = {}
-    params = {}
-    requestMap = dict(
-        params = params,
-        cookies = cookies,
-    )
-
-    with clientSocket.makefile('rb', 0) as cl_file:
-        while True:
-            line = cl_file.readline()
-            if debug:
-                print(line)
-            if not line or line == b'\r\n':
-                break
-            else:
-                try:
-                    if line.startswith(b"GET") or line.startswith(b"POST"):
-                        (method, path, version) = line.split()
-                        requestMap.update(
-                            method=method,
-                            path=path,
-                        )
-                        if b"?" in path:
-                            resource, query = path.split(b"?")
-                            requestMap.update(resource=resource)
-                            paramPairs = query.split(b"&")
-                            for paramPair in paramPairs:
-                                paramName, paramValue = paramPair.split(b"=")
-                                params[paramName] = paramValue
-
-                        else:
-                            requestMap.update(resource=path)
-                    elif line.startswith(b"Cookie:"):
-                        _, cookiePairs = line.split(b":")
-                        cookiePairs = cookiePairs.split(b";")
-                        for cookiePair in cookiePairs:
-                            cookieName, cookieValue = cookiePair.strip().split(b"=")
-                            cookies[cookieName] = cookieValue
-                    elif line.startswith(b"Content-Type:"):
-                        _, headerValue = line.split(b":")
-                        contentType, _ = line.split(b";")
-                        contentType = contentType.strip()
-                        requestMap.update(contentType=contentType)
-                    elif line.startswith(b"Purpose: prefetch"):
-                        requestMap.update(prefetch=True)
-                except ValueError:
-                    pass
-
-        return requestMap
+def writeHttpHeaders(cl, status=200, contentType=b"text/html", charSet=b"UTF-8"):
+    cl.send(b"HTTP/1.1 "); cl.send(str(status).encode("ascii")); cl.send(b" OK"); cl.send(crlf)
+    cl.send(b"Content-Type:"); cl.send(contentType); cl.send(b" ; charset="); cl.send(charSet); cl.send(crlf)
+    cl.send(b"Connection: close"); cl.send(crlf)
 
 
-def hostGame(gameMaker, repeat=True, port=8080, debug=False):
+def writeCookieHeaders(cl, requestMap):
+    cookies = requestMap.get("cookies")
+    if cookies is not None:
+        cl.send(b"Set-Cookie: ")
+        comma = False
+        for cookieName, cookieValue in cookies.items():
+            if comma:
+                cl.send(b",")
+            cl.send(cookieName)
+            cl.send(b"=")
+            cl.send(cookieValue)
+            comma = True
+        cl.send(crlf)
 
+
+def writeHtmlBegin(cl):
+    cl.send(htmlHead)
+    cl.send(htmlResetForm)
+    cl.send(htmlPreOpen)
+
+
+def writeHtmlEnd(cl):
+    cl.send(htmlPreClose)
+    cl.send(htmlResponseForm)
+    cl.send(htmlFoot)
+
+
+def getCookie(requestMap, cookieName=b"session"):
+    cookies = requestMap.get("cookies")
+    if cookies is not None:
+        cookieValue = cookies.get(cookieName)
+        if cookieValue is not None:
+            return cookieValue
+    return None
+
+
+def createCookie(requestMap, cookieName=b"session"):
+    cookies = requestMap.get("cookies")
+    if cookies is None:
+        cookies = {}
+        requestMap.set("cookies", cookies)
+    cookieValue = cookies.get(cookieName)
+    if cookieValue is None:
+        cookieValue = str(randint(1000000000)).encode('utf-8')
+        cookies.set(cookieName, cookieValue)
+    return cookieValue
+
+
+class WebException(Exception):
+    pass
+
+class SessionException(WebException):
+    pass
+
+class NotFoundException(WebException):
+    pass
+
+gameMap = {}
+
+
+def resetAllGames():
+    global gameMap
     gameMap = {}
 
-    cl = None
 
-    def getGame(cookie):
-        return gameMap.get(cookie)
+def getGame(cookie):
+    return gameMap.get(cookie)
 
-    def setGame(cookie, value):
-        if value is None:
-            del gameMap[cookie]
-        else:
-            gameMap[cookie] = value
-        return value
 
-    def resetGame(cookie): # dispose server-side session
-        setGame(playerCookie, None)
+def setGame(cookie, value):
+    if value is None:
+        del gameMap[cookie]
+    else:
+        gameMap[cookie] = value
+    return value
+
+
+def hostGame(gameMaker, port=8080, repeat=True, resetAll=True, debug=False):
+
+    if resetAll:
+        resetAllGames()
+
+    cl = None # doprint references this current client socket reference
 
     def doprint(*items, sep=b" ", end=b"\n"):
+        """Equivalent to print, but writes to current client socket """
         if type(sep) is str:
             sep = sep.encode('utf-8')
         if type(end) is str:
@@ -151,104 +165,123 @@ def hostGame(gameMaker, repeat=True, port=8080, debug=False):
         s.bind(addr)
         s.listen(1)
 
-        # work out why games break if they don't have two questions (don't end with a press enter to reset)
         while True:
-            try:
 
-                while True:
-                    try:
-                        # handle client sockets one by one
-                        cl, addr = s.accept() # doprint binding relies on closure of `cl` reference
+            try: # handle requests from inbound client sockets one by one
 
-                        requestMap = mapRequest(cl, debug)
+                cl, addr = s.accept()
 
-                        if debug:
-                            print(requestMap)
+                status = None
 
-                        resource = requestMap.get('resource')
+                requestMap = mapRequest(cl, debug)
+
+                if debug:
+                    print(requestMap)
+
+                resource = requestMap.get('resource')
+
+                sessionCookie = getCookie(requestMap)
+
+                reset = sessionCookie is None
+
+                try:
+
+                    if resource == b"/":
+
+                        # process application state, render page
+
+                        game = getGame(sessionCookie)
+
+                        method = requestMap.get('method')
                         params = requestMap.get('params')
-                        cookies = requestMap.get('cookies')
 
-                        if resource == b"/":
+                        # reset logic
+                        if method == b"GET":
+                            if game is None:
+                                reset = True
+                            else:
+                                raise SessionException("In-progress game: GET request invalid")
+                        elif method == b"POST":
+                            if params is not None:
+                                if b"reset" in params:
+                                    reset = True
 
-                            for header in defaultHeaders:
-                                cl.send(header)
-                                cl.send(crlf)
+                        if reset:
+                            if sessionCookie is not None:
+                                setGame(sessionCookie, None)
+                            sessionCookie = createCookie(requestMap)
+                            game = setGame(sessionCookie, gameMaker(doprint))
+                        else:
+                            game = getGame(sessionCookie)
+                            if game is None:
+                                raise SessionException("In-progress game not available")
 
-                            playerCookie = cookies.get(b"player")
-                            if playerCookie is None:
-                                playerCookie = str(randint(1000000000)).encode('utf-8')
-                                cl.send(b"Set-Cookie: player=")
-                                cl.send(playerCookie)
-                                cl.send(crlf)
-
-                            cl.send(crlf) # finish headers
-
-                            # start the HTML page
-                            cl.send(htmlHead)
-                            cl.send(htmlResetForm)
-                            cl.send(htmlPreOpen)
-
-                            # process application state, render page
-
-                            if b"reset" in params:
-                                resetGame(playerCookie)
-
-                            response = params.get(b"response")
+                        response = None
+                        if method == b"POST" and not reset:
+                            if params is not None:
+                                response = params.get(b"response")
                             if response is not None:
                                 response = response.decode("utf-8")
                                 response = decodeuricomponent(response)
+                            elif not reset:
+                                raise SessionException("In-progress game: POST without 'response' param invalid")
 
-                            game = getGame(playerCookie)
-                            while True:
-                                print("Entering game turn")
-                                if debug:
-                                    doprint(str(requestMap))
-                                try:
-                                    if game is None:
-                                        game = setGame(playerCookie, gameMaker(doprint)) # create a new game
-                                        prompt = game.send(None)  # generate next prompt, response not expected
-                                    else:
-                                        if response is not None:
-                                            prompt = game.send(response)  # generate next prompt, response is expected
-                                        else:
-                                            pass # no response, serve previous prompt again
-                                    cl.send(prompt.encode('utf-8'))
-                                    cl.send(htmlBreak)
-                                    break
-                                except StopIteration:
-                                    if repeat:
-                                        game = setGame(playerCookie, None)
-                                        continue # create and run the game again
-                                    else:
-                                        cl.send(b"Game Over. Server closing")
-                                        break
+                        writeHttpHeaders(cl)
 
-                            cl.send(htmlPreClose)
-                            cl.send(htmlResponseForm)
-                            cl.send(htmlFoot)
-                        else: # unknown resource
-                            for header in defaultHeaders:
-                                if b"200 OK" in header: # use 404 code instead of 200
-                                    cl.send(b"HTTP/1.1 404 Not Found")
+                        if reset:
+                            writeCookieHeaders(cl, requestMap)
+
+                        cl.send(crlf)  # finish headers
+
+                        writeHtmlBegin(cl)
+
+                        if debug:
+                            doprint(str(requestMap))
+
+                        while repeat:
+                            try:
+                                prompt = game.send(response)  # coroutine calls doprint closure on cl.send()
+                                cl.send(prompt.encode('utf-8'))
+                                cl.send(htmlBreak)
+                                break
+                            except StopIteration:
+                                if repeat:
+                                    setGame(sessionCookie, gameMaker(doprint))
+                                    response = None
+                                    continue # create and run the game again
                                 else:
-                                    cl.send(header)
-                                cl.send(crlf)
-                            cl.send(crlf) # finish headers
-                            cl.send(b"Unknown resource : ")
-                            if type(resource) is bytes:
-                                cl.send(resource)
+                                    cl.send(b"Game Over. Server closing")
+                                    break
 
-                    except BrokenPipeError as bpe:
-                        print("Broken Pipe Error")
-                    except Exception as e:
-                        print(e)
-                    finally:
-                        if cl is not None:
-                            cl.close()
-                            cl = None
+
+                        writeHtmlEnd(cl)
+
+                        cl.close()
+                        cl = None
+                        continue
+
+                    else: # unknown resource
+                        raise SessionException("Unknown resource " + str(resource))
+
+
+            except SessionException as se:
+                print(se)
+
+                if type(se) is NotFoundException:
+                    status = 404
+                else:
+                    status = 400
+            except BrokenPipeError as bpe:
+                print("Broken Pipe Error")
+            except Exception as e:
+                print(e)
             finally:
-                if not repeat:
-                    break
+                if cl is not None:
+                    writeHttpHeaders(cl, status=status)
+                    writeHtmlBegin()
+
+                    writeHtmlEnd()
+                    cl.close()
+                    cl = None
     finally:
         s.close()
