@@ -1,16 +1,13 @@
 class WebException(Exception):
-    message = b"Server Error: "
-    status = b"500"
+    status = b"500 Internal Server Error"
 
 
 class BadRequestException(WebException):
-    message = b"Bad Request: "
-    status = b"400"
+    status = b"400 Bad Request"
 
 
 class NotFoundException(WebException):
-    message = b"Not Found: "
-    status = b"404"
+    status = b"404 Not Found"
 
 
 def extractParams(query):

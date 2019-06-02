@@ -41,10 +41,10 @@ def decodeuricomponent(string): # original from https://gitlab.com/superfly/dawn
     return arr[0] + ''.join(arr2)
 
 
-def writeHttpHeaders(cl, status=b"200", contentType=b"text/html", charSet=b"UTF-8"):
+def writeHttpHeaders(cl, status=b"200 OK", contentType=b"text/html", charSet=b"UTF-8"):
     if type(status) is not bytes:
         status = str(status).encode('utf-8')
-    cl.send(b"HTTP/1.1 "); cl.send(status); cl.send(b" OK"); cl.send(crlf)
+    cl.send(b"HTTP/1.1 "); cl.send(status); cl.send(crlf)
     cl.send(b"Content-Type:"); cl.send(contentType); cl.send(b" ; charset="); cl.send(charSet); cl.send(crlf)
     cl.send(b"Connection: close"); cl.send(crlf)
 
@@ -169,7 +169,6 @@ def hostGame(gameMaker, port=8080, repeat=True, resetAll=True, debug=False):
                 try:
 
                     gc.collect() # clear memory
-                    print("Memory:", gc.mem_free())
 
                     cl, addr = s.accept()
 
@@ -266,16 +265,17 @@ def hostGame(gameMaker, port=8080, repeat=True, resetAll=True, debug=False):
                 except Exception as e: # intercept and write error page
                     if cl is not None:
                         if isinstance(e, WebException):
-                            writeHttpHeaders(cl, status=e.status, message=e.message)
+                            writeHttpHeaders(cl, status=e.status)
                         else:
-                            writeHttpHeaders(cl, status=b"500", message=b"Internal Server Error")
-                        status = e.status if  else b"500"
+                            writeHttpHeaders(cl, status=WebException.status)
                         writeHtmlBegin(cl)
                         cl.send(b"Error: ")
                         if isinstance(e, WebException):
                             cl.send(e.status)
-                            cl.send(e.message)
+                        cl.send(htmlBreak)
                         writeItem(cl, repr(e))
+                        cl.send(htmlBreak)
+                        cl.send(b"Reset session with X at top-right of this page")
                         writeHtmlEnd(cl)
                     raise
                 finally:
