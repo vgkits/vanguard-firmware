@@ -49,3 +49,12 @@ def hostGame(gameMaker, repeat=False):
         finally:
             if not repeat:
                 break
+
+
+def run():
+    from vgkits.console.examples.menu import createSequence
+    hostGame(createSequence)
+
+
+if __name__ == "__main__":
+    run()

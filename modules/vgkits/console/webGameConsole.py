@@ -155,12 +155,12 @@ def hostGame(gameMaker, port=8080, repeat=True, resetAll=True, debug=False):
             print(str(e))
 
     # set up a server socket
+    s = socket.socket()
     try:
         addr = socket.getaddrinfo('0.0.0.0', port)[0][-1]
-
-        s = socket.socket()
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         s.bind(addr)
+
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         s.listen(1)
 
         while True: # handle requests from inbound client sockets one by one
@@ -289,3 +289,12 @@ def hostGame(gameMaker, port=8080, repeat=True, resetAll=True, debug=False):
                 print(repr(e))
     finally:
         s.close()
+
+
+def run():
+    from vgkits.console.examples.menu import createSequence
+    hostGame(createSequence)
+
+
+if __name__ == "__main__":
+    run()
