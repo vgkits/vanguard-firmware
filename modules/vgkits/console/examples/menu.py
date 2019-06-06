@@ -1,4 +1,4 @@
-names = ("Hangman", "Math Dice", "Consequences", "Chat")
+names = ("Hello World", "Hangman", "Math Dice", "Consequences", "Chat")
 
 lastChoice = None
 
@@ -16,21 +16,22 @@ def createSequence(print):
             choice = lastChoice
 
     lastChoice = choice
-
     choice = choice.lower()             # make lowercase
     choice = choice.replace(" ", "")    # remove spaces
+
+    if choice == "helloworld":
+        from vgkits.console.examples.helloworld import createSequence
     if choice == "hangman":
-        from vgkits.console.examples import hangman
-        yield from hangman.createSequence(print)
+        from vgkits.console.examples.hangman import createSequence
     elif choice == "mathdice":
-        from vgkits.console.examples import mathdice
-        yield from mathdice.createSequence(print)
+        from vgkits.console.examples.mathdice import createSequence
     elif choice == "consequences":
-        from vgkits.console.examples import consequences
-        yield from consequences.createSequence(print)
+        from vgkits.console.examples.consequences import createSequence
     elif choice == "chat":
-        from vgkits.console.examples import chat
-        yield from chat.createSequence(print)
+        from vgkits.console.examples.chat import createSequence
+
+    sequence = createSequence(print)
+    yield from sequence
 
 if __name__ == "__main__":
     from vgkits.console.webGameConsole import hostGame
