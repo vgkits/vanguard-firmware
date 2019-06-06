@@ -19,6 +19,7 @@ htmlHead = b"""
                 word-wrap: break-word;
             }
         </style>
+        <meta charset='utf-8'>
     </head>
     <body>"""
 htmlPreOpen = b"""<pre>"""
