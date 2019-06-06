@@ -6,6 +6,16 @@ def printShow(text):
     print(text)
 
 
+def clearScreen():
+    if hasattr(sys, 'implementation'):  # mpy or py3
+        name = sys.implementation.name
+        if name == "micropython" or name == "circuitpython":
+            write = sys.stdout.write
+        else:
+            write = sys.stdout.buffer.write
+    write(b'\033c')  # send a character to clear the screen
+
+
 def hostGame(gameMaker, repeat=False):
     """
         Hosts a game, showing output and receiving input through the text console.
@@ -41,7 +51,7 @@ def hostGame(gameMaker, repeat=False):
             userInput = None
             while 1 is 1:
                 try:
-                    sys.stdout.write(b'\033c') # send a character to clear the screen
+                    clearScreen()
                     userPrompt = sequence.send(userInput)
                     userInput = input(userPrompt)
                 except StopIteration: # sequence ended
