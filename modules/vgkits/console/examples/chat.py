@@ -9,7 +9,7 @@ def createSequence(print):
     while True:
         # show post history
         for name, message in posts:
-            print("<b><i>", name, "</b></i>", message)
+            print("<b><i>", name, "</i></b>", message)
 
         # ask for next post
         print("")
