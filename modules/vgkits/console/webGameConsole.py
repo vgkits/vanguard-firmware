@@ -164,6 +164,8 @@ def hostGame(gameMaker, port=8080, repeat=True, resetAll=True, debug=False):
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         s.listen(1)
 
+        print("Server now running on port " + str(port))
+
         while True: # handle requests from inbound client sockets one by one
             try:
 
