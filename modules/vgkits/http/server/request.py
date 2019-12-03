@@ -37,9 +37,12 @@ def mapRequest(clientSocket, debug=False):
     method = None
 
     clFile = clientSocket.makefile('rb', 0)
+
     try:
         try:
             while True:
+                # TODO make concurrent via async. Single thread blocks below when Chrome
+                # connects a socket and sends nothing.
                 line = clFile.readline() # consider making lowercase before processing
                 if debug:
                     print(line)

@@ -32,10 +32,11 @@ htmlFoot = b"""
 </html>
 """
 
-crlf=b"\r\n"
+crlf = b"\r\n"
 
 
-def decodeuricomponent(string): # original from https://gitlab.com/superfly/dawndoor/blob/master/src/dawndoor/web.py
+# original from https://gitlab.com/superfly/dawndoor/blob/master/src/dawndoor/web.py
+def decodeuricomponent(string):
     string = string.replace('+', ' ')
     arr = string.split('%')
     arr2 = [chr(int(part[:2], 16)) + part[2:] for part in arr[1:]]
@@ -45,9 +46,16 @@ def decodeuricomponent(string): # original from https://gitlab.com/superfly/dawn
 def writeHttpHeaders(cl, status=b"200 OK", contentType=b"text/html", charSet=b"UTF-8"):
     if type(status) is not bytes:
         status = str(status).encode('utf-8')
-    cl.send(b"HTTP/1.1 "); cl.send(status); cl.send(crlf)
-    cl.send(b"Content-Type:"); cl.send(contentType); cl.send(b" ; charset="); cl.send(charSet); cl.send(crlf)
-    cl.send(b"Connection: close"); cl.send(crlf)
+    cl.send(b"HTTP/1.1 ")
+    cl.send(status)
+    cl.send(crlf)
+    cl.send(b"Content-Type:")
+    cl.send(contentType)
+    cl.send(b" ; charset=")
+    cl.send(charSet)
+    cl.send(crlf)
+    cl.send(b"Connection: close")
+    cl.send(crlf)
 
 
 def writeCookieHeaders(cl, requestMap):
@@ -127,7 +135,7 @@ def hostGame(gameMaker, port=8080, repeat=True, resetAll=True, debug=False):
     if resetAll:
         resetAllGames()
 
-    cl = None # doprint references this current client socket reference
+    cl = None  # doprint references this current client socket reference
 
     def doprint(*items, sep=b" ", end=b"\n"):
         """Equivalent to print, but writes to current client socket """
@@ -143,12 +151,13 @@ def hostGame(gameMaker, port=8080, repeat=True, resetAll=True, debug=False):
                 if prev is not None:
                     cl.send(sep)
                 itemType = type(item)
-                if itemType is str: # TODO entity encode strings?
+                if itemType is str:  # TODO entity encode strings?
                     item = item.encode('utf-8')
                 elif itemType is bytes:
-                    pass # send bytestrings unencoded
+                    pass  # send bytestrings unencoded
                 else:
-                    raise Exception('Cannot coerce {} to bytes'.format(itemType))
+                    raise Exception(
+                        'Cannot coerce {} to bytes'.format(itemType))
                 cl.send(item)
                 prev = item
             cl.send(end)
@@ -158,20 +167,19 @@ def hostGame(gameMaker, port=8080, repeat=True, resetAll=True, debug=False):
     # set up a server socket
     s = socket.socket()
     try:
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         addr = socket.getaddrinfo('0.0.0.0', port)[0][-1]
         s.bind(addr)
-
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         s.listen(1)
 
         print("Server now running on port " + str(port))
 
-        while True: # handle requests from inbound client sockets one by one
+        while True:  # handle requests from inbound client sockets one by one
             try:
 
                 try:
 
-                    gc.collect() # clear memory
+                    gc.collect()  # clear memory
 
                     cl, addr = s.accept()
 
@@ -179,6 +187,8 @@ def hostGame(gameMaker, port=8080, repeat=True, resetAll=True, debug=False):
 
                     if requestMap is None or requestMap == {}:
                         raise WebException("Request empty")
+                    else:
+                        pass
 
                     if debug:
                         print(requestMap)
@@ -202,8 +212,9 @@ def hostGame(gameMaker, port=8080, repeat=True, resetAll=True, debug=False):
                         if method == b"GET":
                             if game is None:
                                 reset = True
-                            else:
-                                raise BadRequestException("In-progress game: GET request invalid")
+                            else: # interactions with running game are all HTTP POST
+                                raise BadRequestException(
+                                    "In-progress game: GET request invalid")
                         elif method == b"POST":
                             if params is not None:
                                 if b"reset" in params:
@@ -217,7 +228,8 @@ def hostGame(gameMaker, port=8080, repeat=True, resetAll=True, debug=False):
                         else:
                             game = getGame(sessionCookie)
                             if game is None:
-                                raise BadRequestException("In-progress game not available")
+                                raise BadRequestException(
+                                    "In-progress game not available")
 
                         response = None
                         if method == b"POST" and not reset:
@@ -227,7 +239,8 @@ def hostGame(gameMaker, port=8080, repeat=True, resetAll=True, debug=False):
                                 response = response.decode("utf-8")
                                 response = decodeuricomponent(response)
                             elif not reset:
-                                raise BadRequestException("In-progress game: POST without 'response' param invalid")
+                                raise BadRequestException(
+                                    "In-progress game: POST without 'response' param invalid")
 
                         writeHttpHeaders(cl)
 
@@ -243,13 +256,15 @@ def hostGame(gameMaker, port=8080, repeat=True, resetAll=True, debug=False):
 
                         while repeat:
                             try:
-                                prompt = game.send(response)  # coroutine calls doprint closure on cl.send()
+                                # coroutine calls doprint closure on cl.send()
+                                prompt = game.send(response)
                                 writeItem(cl, prompt)
                                 cl.send(htmlBreak)
                                 break
                             except StopIteration:
-                                if repeat: # create and run the game again
-                                    game = setGame(sessionCookie, gameMaker(doprint))
+                                if repeat:  # create and run the game again
+                                    game = setGame(
+                                        sessionCookie, gameMaker(doprint))
                                     response = None
                                     continue
                                 else:
@@ -257,15 +272,12 @@ def hostGame(gameMaker, port=8080, repeat=True, resetAll=True, debug=False):
                                     break
 
                         writeHtmlEnd(cl)
-
-                        cl.close()
-                        cl = None
                         continue
 
-                    else: # unknown resource
+                    else:  # unknown resource
                         raise NotFoundException("Unknown resource ", resource)
 
-                except Exception as e: # intercept and write error page
+                except Exception as e:  # intercept and write error page
                     if cl is not None:
                         if isinstance(e, WebException):
                             writeHttpHeaders(cl, status=e.status)
@@ -284,9 +296,12 @@ def hostGame(gameMaker, port=8080, repeat=True, resetAll=True, debug=False):
                 finally:
                     if cl is not None:
                         try:
+                            cl.shutdown(socket.SHUT_RDWR)
                             cl.close()
                         finally:
                             cl = None
+            except KeyboardInterrupt as ki:
+                raise
             except Exception as e:
                 print("Exception in " + __name__)
                 print(repr(e))
