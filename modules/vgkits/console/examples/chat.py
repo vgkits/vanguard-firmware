@@ -21,3 +21,13 @@ def createSequence(print):
             posts.append(mypost)
 
         posts[:] = posts[-10:] # keep only the last 10 posts
+
+
+
+def run():
+    from vgkits.console.webGameConsole import hostGame
+    hostGame(createSequence, debug=True)
+
+
+if __name__ == "__main__":
+    run()
